@@ -1,16 +1,15 @@
 import Vue from 'vue'
 import App from './App.vue'
-
-// 1. 导入 ant-design-vue 组件库
-import Antd from 'ant-design-vue'
-// 2. 导入组件库的样式表
-import 'ant-design-vue/dist/antd.css'
-
+import router from './router'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 Vue.config.productionTip = false
-// 3. 安装组件库
-Vue.use(Antd)
 
-new Vue({
+Vue.use(ElementUI)
+
+var vue = new Vue({
+  router,
   render: h => h(App)
 }).$mount('#app')
+export default vue
 

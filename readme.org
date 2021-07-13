@@ -1,0 +1,281 @@
+#+TITLE: Front-Zebra project readme
+#+AUTHOR: dongkechang
+#+EMAIL: dongkechang@foxmail.com
+
+#+PROPERTY: header-args:sql :engine postgresql :dbhost localhost :dbuser postgres :dbpasswd postgres :database coke_development
+#+PROPERTY: header-args:sh :results silent :var server="140.143.237.22"
+
+* orgmode test
+** javascript语言通过nodejs调用
+
+#+BEGIN_SRC js
+const { DateTime } = require("luxon");
+var now = DateTime.now();
+
+var days = [];
+for (let i = 0; i < 30; i++) {
+  var e = now.minus({days: (30 - i)});
+  days[i] = e.toFormat('dd/MM')
+}
+return days
+#+END_SRC
+
+#+BEGIN_SRC js
+const { DateTime } = require("luxon");
+
+function getVirtulData(year) {
+  var date = DateTime.local(year, 1, 1);
+  var end = DateTime.local(year + 1, 1, 1);
+  var dayTime = 3600 * 24 * 1000;
+  var data = [];
+  for (var time = date; time < end; time = time.plus({day: 1})) {
+    data.push([
+      time.toFormat('yyyy-MM-dd'),
+      Math.floor(Math.random() * 10000)
+    ]);
+  }
+  return data;
+}
+
+return getVirtulData(2016)
+#+END_SRC
+
+#+BEGIN_SRC js
+var stringToParse = "{\"nodeId\":\"FAA101200612712345\",\"nodeType\":\"A\",\"timestamp\":\"1613786852\",\"data\":[{\"sensorType\":\"TYPE_INCLINE\",\"value\":75,\"level\":\"LEVEL_NORMAL\",\"para\":1},{\"sensorType\":\"TYPE_INCLINE\",\"value\":-117,\"level\":\"LEVEL_NORMAL\",\"para\":2},{\"sensorType\":\"TYPE_INCLINE\",\"value\":8860,\"level\":\"LEVEL_NORMAL\",\"para\":3}]}"
+let json = JSON.parse(stringToParse);
+console.log(json)
+#+END_SRC
+
+* 服务器初始化
+** mosquitto
+
+First, install mosquitto from official repo
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+yum install -y mosquitto
+#+END_SRC
+
+Configure mosquitto service enable and start automatically on system start
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+systemctl enable mosquitto
+systemctl start mosquitto
+#+END_SRC
+** nginx
+
+Install nginx package from system repo
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+yum install -y nginx
+#+END_SRC
+
+Modify nginx config file
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+# 修改nginx root目录为静态网页目录
+sed -i '/^ *root/c\        root         \/dist;' /etc/nginx/nginx.conf
+#+END_SRC
+
+Enable nginx service and start nginx service immediately
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+systemctl enable nginx
+systemctl start nginx
+#+END_SRC
+** postgresql
+
+Install postgre from system repo
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+yum install -y postgresql-server
+#+END_SRC
+
+Initialize postgresql database, change connection permissions
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+su -l postgres -c "initdb -D /var/lib/pgsql/data"
+su -l postgres -c "createdb coke_development"
+su -l postgres -c "sed -i s/127.0.0.1/0.0.0.0/g /var/lib/pgsql/data/pg_hba.conf"
+su -l postgres -c "sed -i s/localhost/*/g /var/lib/pgsql/data/postgresql.conf"
+su -l postgres -c "sed -i s/#listen/listen/g /var/lib/pgsql/data/postgresql.conf"
+#+END_SRC
+
+Start postgres service, make it auto start on system boot
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+systemctl enable postgresql
+systemctl start postgresql
+#+END_SRC
+** golang
+
+Install golang compiler
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+yum install -y golang
+#+END_SRC
+
+Install golang sdk
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+cd /tmp/
+wget https://github.com/gobuffalo/buffalo/releases/download/v0.16.21/buffalo_0.16.21_Linux_x86_64.tar.gz
+tar -xvzf buffalo_0.16.21_Linux_x86_64.tar.gz
+mv buffalo /usr/local/bin/buffalo
+#+END_SRC
+
+* test
+#+BEGIN_SRC sh
+go get -u github.com/wailsapp/wails/cmd/wails
+#+END_SRC
+
+#+BEGIN_SRC sh
+mosquitto_sub -h 140.143.237.22 -p 1883 -u wwww -t /sensor/B/FAA301210314500001/cmd
+#+END_SRC
+
+** Step 1, install system app packages from repo
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+yum install -y mosquitto nginx postgresql-server
+yum install -y golang
+
+# 修改nginx root目录为静态网页目录
+# sed -i '/^ *root/c\        root         \/dist;' /tmp/nginx.conf
+
+#systemctl start mosquitto
+# systemctl start nginx
+# systemctl restart postgresql
+
+# cd /tmp/
+# wget https://github.com/gobuffalo/buffalo/releases/download/v0.16.21/buffalo_0.16.21_Linux_x86_64.tar.gz
+# tar -xvzf buffalo_0.16.21_Linux_x86_64.tar.gz
+# mv buffalo /usr/local/bin/buffalo
+# cd -
+#+END_SRC
+
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+# yum remove -y mosquitto nginx postgresql-server golang
+#+END_SRC
+** Step 2, configure postgres database 
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/ :results output
+systemctl enable mosquitto
+systemctl enable nginx
+systemctl enable postgresql
+
+# 修改nginx root目录为静态网页目录
+sed -i '/^ *root/c\        root         \/dist;' /tmp/nginx.conf
+su -l postgres -c "initdb -D /var/lib/pgsql/data"
+su -l postgres -c "createdb coke_development"
+su -l postgres -c "sed -i s/127.0.0.1/0.0.0.0/g /var/lib/pgsql/data/pg_hba.conf"
+su -l postgres -c "sed -i s/localhost/*/g /var/lib/pgsql/data/postgresql.conf"
+su -l postgres -c "sed -i s/#listen/listen/g /var/lib/pgsql/data/postgresql.conf"
+#+END_SRC
+
+* 重启mqtt服务
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/
+systemctl restart mosquitto
+# rpm -qa |grep postgre
+#+END_SRC
+
+* 部署数据网关API脚本
+** 备份源代码目录
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/
+mkdir -p ~/backup/
+timestamp=`date +%2Y-%m-%d-%H-%M-%S`
+mv /root/fzd-coke /root/backup/fzd_bak_${timestamp}
+#+END_SRC
+
+** 上传源代码到服务器
+#+BEGIN_SRC sh
+scp -r ~/git/fzd-coke/ root@140.143.237.22:/root/
+#+END_SRC
+
+** 编译网关
+:PROPERTIES:
+:header-args:sh: :dir /ssh:root@140.143.237.22:~/fzd-coke
+:END:
+*** 修改网关为后台运行模式
+#+BEGIN_SRC sh
+sed -i '/func main()/ s/main()/debug1()/' main.go
+sed -i '/func main2()/ s/main2()/main()/' main.go
+sed -i 's/ssswwwtest/GATEWAY_API_ID/' conn/conn.go
+sed -i 's/140.143.237.22/127.0.0.1/' conn/conn.go
+#+END_SRC
+
+#+results:
+
+*** 设定编译环境,编译api网关
+#+BEGIN_SRC sh
+export GO111MODULE=on
+export GOPROXY=https://goproxy.cn
+buffalo b -v -o gateway
+#+END_SRC
+*** 重启gateway进程
+#+BEGIN_SRC sh
+killall -9 gateway
+cp database.yml /tmp
+./gateway
+#+END_SRC
+
+* 数据库部署
+** 数据库重置
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/
+systemctl stop postgresql
+timestamp=`date +%2Y-%m-%d-%H-%M-%S`
+mkdir -p /var/lib/pgsql/backup
+mv /var/lib/pgsql/data /var/lib/pgsql/backup/data_${timestamp}
+mkdir -p /var/lib/pgsql/data
+chown -R postgres:postgres /var/lib/pgsql/data
+su -l postgres -c "initdb -D /var/lib/pgsql/data"
+su -l postgres -c "sed -i s/127.0.0.1\\\/32/0.0.0.0\\\/0/g /var/lib/pgsql/data/pg_hba.conf"
+su -l postgres -c "sed -i s/localhost/*/g /var/lib/pgsql/data/postgresql.conf"
+su -l postgres -c "sed -i s/#listen/listen/g /var/lib/pgsql/data/postgresql.conf"
+systemctl start postgresql
+#+END_SRC
+
+** 创建数据库实例
+create database instance for coke_development
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/
+su -l postgres -c "createdb coke_development"
+#+END_SRC
+** 导入数据库表
+#+BEGIN_SRC sh
+ PGPASSWORD=postgres psql -U postgres -d coke_development -h 140.143.237.22 -p 5432 -f ../fzd-coke/migrations/schema.sql
+#+END_SRC
+
+** 导入初始化数据
+
+#+HEADER: :dbhost 140.143.237.22
+#+begin_src sql :results silent
+DELETE FROM users;
+INSERT INTO users VALUES('d2d29867-3d0b-d497-9191-18a9d8ee7830','c2d29867-3d0b-d497-9191-18a9d8ee7832', 'fasten789', '2', 'b808808', '1999-01-08 04:05:06', '1999-02-08 04:05:06');
+
+DELETE FROM companies;
+INSERT INTO companies VALUES('c2d29867-3d0b-d497-9191-18a9d8ee7831','北京隧道1', '1999-01-08 04:05:06', '1999-02-08 04:05:06');
+
+DELETE FROM projects;
+INSERT INTO projects VALUES('A2d29867-3d0b-d497-9191-18a9d8ee7840','c2d29867-3d0b-d497-9191-18a9d8ee7831', '项目名称2', '1', '', '1999-01-08 04:05:06', '1999-02-08 04:05:06');
+#+end_src
+
+* 前端UI部署
+** 修改部署服务器地址
+#+BEGIN_SRC sh
+sed -i 's/127.0.0.1/140.143.237.22/' src/util/request.js
+#+END_SRC
+** 编译成js和html文件
+npm build 输出的日志太长,重定向到文件
+#+BEGIN_SRC sh
+npm run build &> /tmp/npm_build.log
+#+END_SRC
+** 备份上个版本UI
+#+BEGIN_SRC sh :dir /ssh:root@140.143.237.22:~/
+mkdir /backup
+timestamp=`date +%2Y-%m-%d-%H-%M-%S`
+mv /dist /backup/ui_${timestamp}
+#+END_SRC
+** 发布到服务器
+#+BEGIN_SRC sh
+scp -r ~/git/zebra-front/dist/ root@140.143.237.22:/
+#+END_SRC
+** 恢复服务器ip为本地ip
+#+BEGIN_SRC sh
+sed -i 's/140.143.237.22/127.0.0.1/' src/util/request.js
+#+END_SRC
+
+* test
+#+HEADER: :dbhost 140.143.237.22
+#+begin_src sql
+-- SELECT * FROM users;
+
+-- SELECT * FROM companies;
+
+-- SELECT * FROM projects;
+#+end_src

@@ -1,0 +1,181 @@
+#+TITLE: IAE702与云平台数据通讯协议
+#+AUTHOR: dongkechang
+#+EMAIL: dongkechang@foxmail.com
+
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [a4paper]
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
+#+LATEX_HEADER: \usepackage{ctex}
+#+LATEX_HEADER: \usepackage{xltxtra}
+#+LATEX_HEADER: \usepackage{fontspec, xunicode, xltxtra}
+#+LATEX_HEADER: \usepackage{fancyhdr, lastpage}
+#+LATEX_HEADER: \fancyhead[L,C]{}
+#+LATEX_HEADER: \fancyfoot{}
+#+LATEX_HEADER: \fancyhead[R]{法智达(北京)科技有限公司}
+#+LATEX_HEADER: \fancyfoot[L]{版权所有}
+#+LATEX_HEADER: \fancyfoot[R]{\thepage}
+#+LATEX_HEADER: \renewcommand{\footrulewidth}{0.4pt}
+#+LATEX_HEADER: \pagestyle{fancy}
+#+LATEX_HEADER: \usepackage[tocentry, nochapter, owncaptions, tablegrid]{vhistory}
+#+EXPORT_FILE_NAME: IAE702_protocol_1.10.pdf
+#+OPTIONS: toc:nil
+
+#+BEGIN_versionhistory
+  \vhEntry{1.0}{22/01/2021}{dongkechang}{1.新创建}
+  \vhEntry{1.1}{08/04/2021}{dongkechang}{1.编写基本通讯方式和交互流程}
+  \vhEntry{1.2}{10/04/2021}{dongkechang}{1.修改IA702数据消息体 2. 修改产品名称为IAE702, IAM202}
+  \vhEntry{1.3}{11/04/2021}{dongkechang}{1.修改realtime, alarmtime类型为uint32}
+  \vhEntry{1.4}{12/04/2021}{dongkechang}{1.添加IAE702消息体}
+  \vhEntry{1.5}{12/04/2021}{dongkechang}{1.修改网关IAE702唯一标识,从15位修改为19位}
+  \vhEntry{1.6}{14/04/2021}{dongkechang}{1.重命名IAE702,IAM202消息体名字 2.NodeCmd增加缺失的IAE702消息体}
+  \vhEntry{1.7}{15/04/2021}{dongkechang}{1.修改IAM202消息体名字}
+  \vhEntry{1.8}{16/04/2021}{dongkechang}{1.修改IAM202消息体名字,拼写错误}
+  \vhEntry{1.9}{19/04/2021}{dongkechang}{1.去掉严重过压状态}
+  \vhEntry{1.10}{28/04/2021}{dongkechang}{1.添加命令类型,将终端回应的数据帧区分开}
+#+END_versionhistory
+
+@@latex:\clearpage@@
+#+TOC: headlines 2
+
+@@latex:\clearpage@@
+
+* IAE702基本功能
+IAE702通过无线频率433M与附近的IAM202和IAT301进行数据交互,获取IAM202和IAT301采集到的数据,将数据透传给云平台,同时接收云平台对IA#202和IAT301的操作指令.将指令下达给指定地址的终端.
+* 通讯方式
+** 4G或者以太网
+通过4G网络或者直接通过有线接入云平台. 传输层采用mqtt协议.
+** 433M无线射频
+与IAM202和IAT301采用433M无线射频广播通讯.通讯协议见IAM202和IAT301产品文档
+* 通讯协议
+** 传输层采用mqtt
+1. 传输层采用mqtt, 采用模块本身支持的mqtt协议, 推荐在udp协议上采用paho提供的库,这样可以不依赖与具体的nbiot模块,通用性更强.服务器采用eclipse开源的[[https://mosquitto.org/][mosquitto]]
+2. mqtt协议详见官方主页https://mqtt.org 协议细节在此不在赘述
+2. 应用层采用protobuf, 嵌入式端采用相应的语言编译器[[https://jpa.kapsi.fi/nanopb/][nanopb]] 服务器端采用官方语言编译器[[https://github.com/protocolbuffers/protobuf][protobuf]]
+
+** IAE702与云平台通讯主题
+IAM202和IAT301需要将数据发送给数据网关IAE702,数据网关IAE702进行协议转换,将数据透传给云平台,同时数据网关IAE702接收云平台数据,下发给对应终端
+根据数据网关与云平台交互的消息,内容分为多个上报topic.(topic采用树形方式,发布和订阅双方交互信息),其组织结构类型如下:
+#+ATTR_LATEX: :environment longtable :align |l|l|l|l|
+|----------------+--------------------------+----------+----------------|
+| 类型           | 主题名称                 | 消息     | 用途           |
+|----------------+--------------------------+----------+----------------|
+| IAE702上报数据 | /IAE702/data             | NodeData | IAE702上传数据 |
+| IAE702接收命令 | /IAE702/{gateway_id}/cmd | NodeCmd  | 云端命令下发   |
+|----------------+--------------------------+----------+----------------|
+
+** IAM202, IAT301, IAE702与云平台数据交互时序图
+IAM202, IAT301, IAE702与云平台数据交互时序图如下
+#+BEGIN_SRC plantuml :cmdline -charset utf8 :file /tmp/gateway_app.png
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam sequenceParticipant underline
+
+scale 1.0
+autonumber
+participant "IAM202"  as c
+participant "IAE702"  as g
+participant "mqtt服务器" as m
+participant "云平台" as a
+
+a -> m : 服务启动时连接mqtt服务器
+a -> m : 订阅"/gateway/data"主题
+g -> m : 连接mqtt服务器
+g -> m : 订阅"/gateway/{gate_id}/cmd"主题
+c -> g : 向IAE702发送消息
+g -> m : IAE702将消息NodeData发布到"/gateway/data"
+m -> a : 云平台接收到消息NodeData
+m <- a : 云平台下发确认消息/gateway/{gate_id}/cmd
+g <- m : IAE702接收NodeReply消息
+g -> c : IAE702透传消息给特定的IAM202
+m <- a : 云平台下发命令消息/gateway/{gate_id}/cmd
+g <- m : IAE702接收NodeCmd消息
+g -> c : IAE702透传消息给特定的IAM202
+c -> g : IAM202向IAE702发送确认消息
+g -> m : IAE702将消息NodeData发布到"/gateway/data"
+m -> a : 云平台接收到消息NodeReply
+#+END_SRC
+
+*** IAE702与云平台交互消息
+IAE702和云平台应用层消息如下:
+#+BEGIN_EXAMPLE :exports code
+syntax = "proto2";
+enum NodeType {
+    A = 1; // IAM202
+    B = 2; // IAT301
+}
+
+// 传感器类型,目前支持压力,倾斜
+enum SensorType {
+    TYPE_PRESSURE = 1;
+    TYPE_INCLINE  = 2;
+}
+
+// 云平台下发命令类型
+enum CmdType{
+    CMD_GET_PARAMS  = 1;
+    CMD_SET_PARAMS  = 2;
+    CMD_SLEEP       = 3;
+
+    CMD_GET_PARAMS_REPLY  = 4;
+    CMD_SET_PARAMS_REPLY  = 5;
+    CMD_REPORT_DATA = 6;
+}
+
+// 报警类型
+enum AlarmLevel{
+    LEVEL_NORMAL  = 1;  // 正常
+    // 压力
+    LEVEL_LOOSE_1 = 2;  // 松动1级
+    LEVEL_LOOSE_2 = 3;  // 松动2级
+    LEVEL_GUOYA_1 = 4;  // 过压1级
+
+    // 倾斜
+    LEVEL_INCLINE_1 = 5;  // 轻微倾斜
+    LEVEL_INCLINE_2 = 6;  // 严重倾斜
+}
+
+message IAM202Message {
+  optional CmdType cmd = 1;
+  optional int32 data = 2; 
+  optional AlarmLevel level = 3; 
+  optional uint32 real_time = 4; 
+  optional uint32 alarm_time = 5; 
+}
+
+message IAE702Message {
+  optional CmdType cmd = 1;
+  optional string server_addr_1 = 2;
+  optional uint32 port_1        = 3;
+  optional string server_addr_2 = 4;
+  optional uint32 port_2        = 5;
+  optional uint32 real_time     = 6;
+}
+
+// 通用数据上报消息类型,
+message NodeData {
+  required string        gateway_id = 1 [(nanopb).max_length = 19];
+  optional NodeType      node_type  = 2;
+  optional uint32        node_addr  = 3;
+  required uint32        timestamp  = 4;
+  optional IAM202Message iam202     = 5;
+  optional IAE702Message iae702     = 6;
+}
+
+message NodeCmd {
+  required string        gateway_id = 1 [(nanopb).max_length = 19];
+  optional NodeType      node_type  = 2;
+  optional uint32        node_addr  = 3;
+  required uint32        timestamp  = 4;
+  optional IAM202Message iam202     = 5;
+  optional IAE702Message iae702     = 6;
+}
+#+END_EXAMPLE
+** 连接mqtt服务器
+1. IAE702设置用户名,密码, qos, 连接地址和端口等连接信息发起连接请求
+2. IAE702保持长连接
+** 发送终端采集到的数据
+1. 向主题"/IAE702/data"发送类型为NodeData的消息
+2. 检查AT指令对应的返回值,确认发送成功
+** 接收命令
+1. 订阅主题"/IAE702/{gateway_id}/cmd"
+2. 检查AT指令对应的返回值,确认订阅成功

@@ -1,0 +1,63 @@
+syntax = "proto2";
+import "nanopb.proto"; 
+
+enum NodeType {
+    A = 1;
+    B = 2;
+    C = 3;
+    D = 4;
+}
+enum SensorType {
+    PRESSURE = 1;
+}
+enum CmdType{
+    CMD_GET_PARAMS = 1;
+    CMD_SET_PARAMS = 2;
+    CMD_REBOOT     = 3;
+}
+message NodeState {
+    required string   node_id   = 1 [(nanopb).max_length = 20];
+    required NodeType type      = 2;
+    required bool     state     = 3;
+    optional int64    timestamp = 4;
+}
+message SensorData {
+    required SensorType sensor_type = 1;
+    required uint32     value       = 2;
+    optional uint32     para        = 3;
+}
+message NodeData{
+    required string     node_id   = 1 [(nanopb).max_length = 20];
+    required NodeType   node_type = 2;
+    optional int64      timestamp = 3;
+    repeated SensorData data      = 4;
+    optional NodeParams params    = 5;
+}
+message NodeID{
+    required string   node_id   = 1 [(nanopb).max_length = 20];
+    required NodeType node_type = 2;
+}
+message NodeCmd{
+    required string     node_id   = 1 [(nanopb).max_length = 20];
+    required NodeType   node_type = 2;
+    // 若获取参数,则为CMD_GET_PARAMS,若设置参数则为CMD_SET_PARAMS,同时设置下面的params字段
+    required CmdType    cmd_type  = 3;
+    optional NodeParams params    = 4;
+}
+message NodeParams {
+    optional string node_id      = 1 [(nanopb).max_length = 40];  // 终端ID
+    optional uint32 node_type    = 2;  // 设备类型
+    optional uint32 gui_ling     = 3;  // 归零
+    optional uint32 biao_ding_1  = 4;  // 标定1
+    optional uint32 biao_ding_2  = 5;  // 标定2
+    optional uint32 biao_ding_3  = 6;  // 标定3
+    optional uint32 song_dong_1  = 7;  // 松动值1
+    optional uint32 song_dong_2  = 8;  // 松动值2
+    optional uint32 op_pressure  = 9;  // 过压值
+    optional uint32 wake_time    = 10; // 唤醒时间
+    optional uint32 tmv          = 11; // 温度修订数据
+    optional uint32 rf_power     = 12; // 射频功率
+    optional uint32 rf_frequency = 13; // 射频频率
+    optional uint32 server_ip    = 14; // 数据网关IP
+    optional uint32 server_port  = 15; // 数据网关端口
+}

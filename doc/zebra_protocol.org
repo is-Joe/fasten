@@ -1,0 +1,520 @@
+#+TITLE: 法智达云平台数据网关与终端通讯协议
+#+AUTHOR: dongkechang
+#+EMAIL: dongkechang@foxmail.com
+
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [a4paper]
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
+#+LATEX_HEADER: \usepackage{ctex}
+#+LATEX_HEADER: \usepackage{xltxtra}
+#+LATEX_HEADER: \usepackage{fontspec, xunicode, xltxtra}
+#+LATEX_HEADER: \usepackage{fancyhdr, lastpage}
+#+LATEX_HEADER: \fancyhead[L,C]{}
+#+LATEX_HEADER: \fancyfoot{}
+#+LATEX_HEADER: \fancyhead[R]{法智达(北京)科技有限公司}
+#+LATEX_HEADER: \fancyfoot[L]{版权所有}
+#+LATEX_HEADER: \fancyfoot[R]{\thepage}
+#+LATEX_HEADER: \renewcommand{\footrulewidth}{0.4pt}
+#+LATEX_HEADER: \pagestyle{fancy}
+#+LATEX_HEADER: \usepackage[tocentry, nochapter, owncaptions, tablegrid]{vhistory}
+#+EXPORT_FILE_NAME: zebra_protocol_1.7.pdf
+#+OPTIONS: toc:nil
+
+#+BEGIN_versionhistory
+  \vhEntry{1.0}{22/01/2021}{dongkechang}{1.新创建}
+  \vhEntry{1.1}{23/01/2021}{dongkechang}{1.修复错误}
+  \vhEntry{1.2}{03/02/2021}{dongkechang}{1.修改传感器上报数据结构,增加多种类型传感器,多种维度数据上报}
+  \vhEntry{1.3}{02/03/2021}{dongkechang}{1.添加倾斜传感器参数设置接口 2.修改NodeCmd及NodeCmdReply中NodeParams数据结构}
+  \vhEntry{1.4}{02/03/2021}{dongkechang}{1.修复时间戳类型为uint32 2.NodeParamsA数据成员编号从1开始 }
+  \vhEntry{1.5}{05/04/2021}{dongkechang}{1.添加本地网关类型C 2.添加类型A,B参数备用服务器地址 3.删除终端连接网关后上报上线状态消息}
+  \vhEntry{1.6}{11/06/2021}{dongkechang}{1.添加IAM202终端标定协议,采用protobuf+crc32校验,添加转义,桢头和桢尾}
+#+END_versionhistory
+
+@@latex:\clearpage@@
+#+TOC: headlines 2
+
+@@latex:\clearpage@@
+
+* 通讯方式
+** DNS解析
+1. 由于NBIOT需要连接公网IP,NBIOT终端中需要预先设置连接服务器的地址.考虑到产品化,地址需要设置成域名,通过DNS解析获取真正的IP地址(为了保险起见,设置2个dns服务器,设置两个应用域名, 2个配置服务器域名)
+2. 单片机实现dns解析 https://blog.csdn.net/jdh99/article/details/16959149#
+3. 常用DNS
+| 名称    |           主DNS |           从DNS |
+|---------+-----------------+-----------------|
+| 阿里DNS |       223.5.5.5 |       223.6.6.6 |
+| 百度DNS |    180.76.76.76 |                 |
+| 114DNS  | 114.114.114.114 | 114.114.115.115 |
+| 谷歌DNS |         8.8.8.8 |         8.8.4.4 |
+| OpenDNS |  208.67.220.220 |  208.67.222.222 |
+
+* NBIOT终端网络通讯流程
+NBIOT与DNS服务器,配置服务器,数据网关之间的通讯流程如下所示:
+
+#+BEGIN_SRC plantuml :cmdline -charset utf8 :file /tmp/iniot_network_sequence.png
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+skinparam sequenceParticipant underline
+
+scale 5.0
+actor "NBIOT终端模块" as user
+participant "DNS服务器" as dns1
+participant "配置服务器" as cfg1
+participant "数据网关" as app1
+
+'请求配置服务器域名,获取配置服务器IP
+user -> dns1 : 请求配置服务器域名
+activate dns1
+dns1 -> user : 配置服务器DNS解析成功
+deactivate dns1
+
+user -> cfg1 : 连接配置服务器
+activate cfg1
+cfg1 -> user : 连接配置服务器成功
+
+user -> cfg1 : 请求配置
+cfg1 -> user : 下发传感器配置信息
+deactivate cfg1
+
+'请求应用服务器域名,获取配置服务器IP
+user -> dns1 : 请求应用服务器域名
+activate dns1
+dns1 -> user : 应用服务器DNS解析成功
+deactivate dns1
+
+user -> app1 : 连接应用服务器
+activate app1
+app1 -> user : 连接应用服务器成功
+
+user -> app1 : 发送传感器数据
+app1 -> user : 确认传感器数据
+deactivate app1
+
+#+END_SRC
+
+* 通讯协议
+** 传输层采用MQTT, 应用层采用protobuf
+1. 传输层采用mqtt-sn, 嵌入式端可以在udp协议基础上进行封装, 也可以采用模块本身支持的mqtt协议, 推荐在udp协议上采用paho提供的库,这样可以不依赖与具体的nbiot模块,通用性更强.服务器采用eclipse开源的[[https://mosquitto.org/][mosquitto]]
+2. 应用层采用protobuf, 嵌入式端采用相应的语言编译器[[https://jpa.kapsi.fi/nanopb/][nanopb]] 服务器端采用官方语言编译器[[https://github.com/protocolbuffers/protobuf][protobuf]]
+3. 对实时性要求高的终端/网关/PDA，采用标准mqtt协议.保证通讯可靠性,如果运算能力允许,可以开启TLS安全功能
+4. [[https://blog.csdn.net/hui6075/article/details/79092318][Mosquitto桥接]]
+* MQTT主题
+** NBIOT终端主题
+根据终端上报的消息内容分为多个上报topic.(topic采用树形方式,发布和订阅双方交互信息),其组织结构类型如下:
+#+ATTR_LATEX: :environment longtable :align |l|l|l|l|
+|--------------+--------------------------------+--------------------+------------------|
+| 类型         | 主题名称                       | 消息               | 用途             |
+|--------------+--------------------------------+--------------------+------------------|
+| 终端id上报   | /sensor/register               | NodeID             | 终端ID和类型上报 |
+| 终端上报     | /sensor/{type}/{node_id}/state | NodeState          | 连接状态         |
+| 遗嘱消息     | /sensor/{type}/{node_id}/will  | "{node_id},{type}" | 异常掉线         |
+| 终端上报     | /sensor/{type}/{node_id}/data  | NodeData           | 传感器数据内容   |
+| 终端接收命令 | /sensor/{type}/{node_id}/cmd   | NodeCmd            | 云端命令下发     |
+| 终端回复命令 | /sensor/{type}/{node_id}/reply | NodeCmdReply       | 终端回复命令     |
+|--------------+--------------------------------+--------------------+------------------|
+
++ 其中{type}和{node_id}使用终端自己的类型进行替换,比如终点的类型为"A", 终端的ID为"FZDA1001012",则终端发布的连接状态主题为"/sensor/A/FZDA1001012/state"
++ 注意,遗嘱消息的类型为字符串,内容为"终端ID,终端type". 比如为"FZDA1001012,A"
+
+** 433M终端网关主题
+433M终端需要将数据发送给数据网关,数据网关进行协议转换,将数据透传给云平台,同时数据网关接收云平台数据,下发给对应终端
+根据数据网关与云平台交互的消息,内容分为多个上报topic.(topic采用树形方式,发布和订阅双方交互信息),其组织结构类型如下:
+#+ATTR_LATEX: :environment longtable :align |l|l|l|l|
+|-----------------+---------------------------+----------+-----------------|
+| 类型            | 主题名称                  | 消息     | 用途            |
+|-----------------+---------------------------+----------+-----------------|
+| E型网关上报数据 | /gateway/data             | NodeData | E型网关实时数据 |
+| E型网关接收命令 | /gateway/{gateway_id}/cmd | NodeCmd  | 云端命令下发    |
+|-----------------+---------------------------+----------+-----------------|
+
+* NBIOT终端与应用之间的逻辑通讯
+** NBIOT终端与云平台时序图
+终端与应用之间通讯的时序图如下
+#+BEGIN_SRC plantuml :cmdline -charset utf8 :file /tmp/iniot_app.png
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam sequenceParticipant underline
+
+scale 5.0
+autonumber
+participant "NBIOT终端模块" as user
+participant "数据网关" as app1
+participant "应用服务" as app2
+
+app2 -> app1 : 服务启动时连接数据网关
+app2 -> app1 : 订阅"/sensor/register"主题
+user -> app1 : 终端连接数据网关,设置will消息
+user -> app1 : 设置遗嘱消息(will message),具体看mqtt协议
+user -> app1 : 终端向主题"/sensor/register"发布消息NodeID
+app2 <- app1 : 接收到消息NodeID, 确定(NodeID和NodeType)
+app2 -> app1 : 订阅主题"/sensor/{type}/{node_id}/state"
+app2 -> app1 : 订阅主题"/sensor/{type}/{node_id}/data"
+app2 -> app1 : 订阅主题"/sensor/{type}/{node_id}/reply"
+user -> app1 : 终端向主题"/sensor/{type}/{node_id}/data"发布消息NodeData
+app2 <- app1 : 接收到消息NodeData
+user <- app1 : 终端订阅主题"/sensor/{type}/{node_id}/cmd",业务下发NodeCmd
+user -> user : 等待应用下发命令,默认1分钟
+app2 -> app1 : 向主题"/sensor/{type}/{node_id}/cmd"发布命令消息NodeCmd
+user <- app1 : 终端接收命令消息(获取或者设置终端参数)
+user -> app1 : 终端发送(获取的参数或设置后)参数信息,主题"/sensor/{type}/{node_id}/reply"
+app2 <- app1 : 接收到消息NodeCmdReply
+user -> user : 等待应用下发命令,默认1分钟
+user -> app1 : 如果超时没收到命令,向主题"/sensor/{type}/{node_id}/state"发布消息NodeState
+user -> app1 : 断开mqtt连接
+#+END_SRC
+
+#+results:
+[[file:/tmp/iniot_app.png]]
+终端与应用交互过程分步
+** 连接mqtt服务器
+1. 终端设置用户名,密码, qos, 连接地址和端口等连接信息, 设置will消息, 发起连接请求
+2. 检查AT指令对应的返回值,确认连接成功
+3. 设置遗嘱消息
+** 发送注册消息
+1. 向主题"/sensor/register"发送类型为NodeID的消息
+2. 检查AT指令对应的返回值,确认发送成功
+** 发送终端采集到的数据
+1. 向主题"/sensor/{type}/{node_id}/data"发送类型为NodeData的消息,注意,SensorData的值可能有多个,具体跟产品的类型有关,可以是不同类型的值,也可以是同一个类型,不同传感器的值
+2. 检查AT指令对应的返回值,确认发送成功
+** 接收命令
+1. 订阅主题"/sensor/{type}/{node_id}/cmd"
+2. 检查AT指令对应的返回值,确认订阅成功
+3. 等待应用下发命令,默认1分钟.若接收到命令,进行下一步操作
+** 发送命令执行结果
+1. 执行接收到的命令(获取参数,修改参数,执行动作)
+2. 向主题"/sensor/{type}/{node_id}/reply"发送命令执行结果消息NodeCmdReply
+3. 检查AT指令对应的返回值,确认发送成功
+4. 等待应用下发命令,默认1分钟.若接收到命令,则重复此操作
+** 发送状态数据 (上线)
+1. 向主题"/sensor/{type}/{node_id}/state"发送类型为NodeState的消息,报告终端下线
+2. 检查AT指令对应的返回值,确认发送成功
+** 断开连接
+1. 如果超时没有接收到命令,则终端断开连接,进入休眠,通讯结束
+* NBIOT终端与云平台交换数据
+** 传输层采用mqtt, qos1, 应用层采用protobuf
+终端和云平台应用层消息如下:
+#+BEGIN_EXAMPLE :exports code
+syntax = "proto2";
+enum NodeType {
+    A = 1; // 终端类型A 通讯方式NBIOT, 一个压力传感器
+    B = 2; // 终端类型B 通讯方式NBIOT, 一个倾斜传感器
+}
+// 传感器类型,目前支持压力,倾斜
+enum SensorType {
+    TYPE_PRESSURE = 1;
+    TYPE_INCLINE  = 2;
+}
+// 云平台下发命令类型
+enum CmdType{
+    CMD_GET_PARAMS = 1;
+    CMD_SET_PARAMS = 2;
+    CMD_REBOOT     = 3;
+}
+// 报警类型
+enum AlarmLevel{
+    LEVEL_NORMAL  = 1;  // 压力正常
+    LEVEL_LOOSE_1 = 2;  // 松动1级
+    LEVEL_LOOSE_2 = 3;  // 松动2级
+    LEVEL_GUOYA_1 = 4;  // 过压1级
+    LEVEL_GUOYA_2 = 5;  // 过压2级
+}
+message NodeState {
+    required string   node_id   = 1 [(nanopb).max_length = 15];
+    required NodeType type      = 2;
+    required bool     state     = 3;
+    required uint32   timestamp = 4;
+}
+message SensorData {
+  required sint32     value    = 1;
+  optional uint32     para     = 2; // 同终端,同类型传感器不同分量,如x,y,z轴,从1开始编号
+}
+message Sensor {
+  required SensorType type     = 1;
+  repeated SensorData data     = 2;
+  optional AlarmLevel level    = 3;
+  optional uint32     index    = 4 [default = 1]; // 同终端,同类型传感器编号,从1开始
+}
+
+// 通用数据上报消息类型,
+message NodeData{
+    required string     node_id   = 1 [(nanopb).max_length = 15];
+    required NodeType   node_type = 2;
+    required uint32     timestamp = 3;
+    repeated Sensor     sensor    = 4;
+}
+
+message NodeID{
+    required string   node_id   = 1 [(nanopb).max_length = 15];
+    required NodeType node_type = 2;
+}
+
+message NodeCmd{
+  required string     node_id   = 1 [(nanopb).max_length = 15];
+  required NodeType   node_type = 2;
+  required CmdType    cmd_type  = 3;
+  optional NodeParamsA params_a = 4;
+  optional NodeParamsB params_b = 5;
+}
+
+// 终端命令回复消息
+message NodeCmdReply{
+  required string     node_id   = 1;
+  required NodeType   node_type = 2;
+  optional uint32     timestamp = 3;
+  optional NodeParamsA params_a = 4;
+  optional NodeParamsB params_b = 5;
+}
+
+// 压力传感器配置
+message NodeParamsA {
+  optional uint32 gui_ling       = 1;  // 归零
+  optional uint32 biao_ding_1    = 2;  // 标定1
+  optional uint32 biao_ding_2    = 3;  // 标定2
+  optional uint32 biao_ding_3    = 4;  // 标定3
+  optional uint32 song_dong_1    = 5;  // 松动值1
+  optional uint32 song_dong_2    = 6;  // 松动值2
+  optional uint32 op_pressure    = 7;  // 过压值
+  optional uint32 wake_time      = 8;  // 唤醒时间
+  optional uint32 tmv            = 9;  // 温度修订数据
+  optional uint32 rf_power       = 10; // 射频功率
+  optional uint32 rf_frequency   = 11; // 射频频率
+  optional string server_addr_1  = 12; // 数据网关地址1
+  optional uint32 server_port_1  = 13; // 数据网关端口1
+  optional string server_addr_2  = 14; // 数据网关地址2
+  optional uint32 server_port_2  = 15; // 数据网关端口2
+  optional uint32 realtime       = 16; // 实时时钟
+}
+
+// 倾斜传感器配置
+message NodeParamsB {
+  optional uint32 wake_time      = 1;  // 唤醒时间
+  optional sint32 axis_x         = 2; // 当前倾斜角x轴分量
+  optional sint32 axis_y         = 3; // 当前倾斜角y轴分量
+  optional sint32 axis_z         = 4; // 当前倾斜角z轴分量
+  optional string server_addr_1  = 5; // 数据网关地址1
+  optional uint32 server_port_1  = 6; // 数据网关端口1
+  optional string server_addr_2  = 7; // 数据网关地址2
+  optional uint32 server_port_2  = 8; // 数据网关端口2
+  optional uint32 realtime       = 9; // 实时时钟
+}
+#+END_EXAMPLE
+* C型和D型终端,E型数据网关与应用之间的逻辑通讯
+** NBIOT终端与云平台时序图
+终端与应用之间通讯的时序图如下
+#+BEGIN_SRC plantuml :cmdline -charset utf8 :file /tmp/gateway_app.png
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam sequenceParticipant underline
+
+scale 1.0
+autonumber
+participant "C型终端"  as c
+participant "E型网关"  as g
+participant "mqtt服务器" as m
+participant "应用服务" as a
+
+a -> m : 服务启动时连接mqtt服务器
+a -> m : 订阅"/gateway/data"主题
+g -> m : E型网关,连接mqtt服务器
+g -> m : 订阅"/gateway/{gate_id}/cmd"主题
+c -> g : C型终端向E型网关发送消息
+g -> m : E型网关将消息NodeData,发布到主题"/gateway/data"
+m -> a : 应用服务接收到消息NodeData
+m <- a : 云平台下发收到确认消息/gateway/{gate_id}/cmd
+g <- m : E型网关接收NodeReply消息
+g -> c : E型网关透传消息给特定的C型终端
+m <- a : 云平台下发命令消息/gateway/{gate_id}/cmd
+g <- m : E型网关接收NodeCmd消息
+g -> c : E型网关透传消息给特定的C型终端
+c -> g : C型终端向E型网关发送确认消息
+g -> m : E型网关将消息透传, 发布到主题"/gateway/data"
+m -> a : 应用服务接收到消息NodeReply
+#+END_SRC
+
+** 连接mqtt服务器
+1. E型网关设置用户名,密码, qos, 连接地址和端口等连接信息发起连接请求
+** 发送注册消息
+1. 向主题"/gateway/data"发送类型为NodeData的消息
+2. 确认发送成功
+** 发送终端采集到的数据
+1. 向主题"/sensor/{type}/{node_id}/data"发送类型为NodeData的消息,注意,SensorData的值可能有多个,具体跟产品的类型有关,可以是不同类型的值,也可以是同一个类型,不同传感器的值
+2. 检查AT指令对应的返回值,确认发送成功
+** 接收命令
+1. 订阅主题"/sensor/{type}/{node_id}/cmd"
+2. 检查AT指令对应的返回值,确认订阅成功
+3. 等待应用下发命令,默认1分钟.若接收到命令,进行下一步操作
+** 发送命令执行结果
+1. 执行接收到的命令(获取参数,修改参数,执行动作)
+2. 向主题"/sensor/{type}/{node_id}/reply"发送命令执行结果消息NodeCmdReply
+3. 检查AT指令对应的返回值,确认发送成功
+4. 等待应用下发命令,默认1分钟.若接收到命令,则重复此操作
+* 433M数据网关与云平台交换数据
+** 传输层采用mqtt, qos1, 应用层采用protobuf
+终端和云平台应用层消息如下:
+#+BEGIN_EXAMPLE :exports code
+syntax = "proto2";
+enum NodeType {
+    C = 1; // 终端类型A 通讯方式433M, 一个压力传感器
+    D = 2; // 终端类型B 通讯方式433M, 一个倾斜传感器
+    E = 3; // 数据网关
+}
+// 传感器类型,目前支持压力,倾斜
+enum SensorType {
+    TYPE_PRESSURE = 1;
+    TYPE_INCLINE  = 2;
+}
+// 云平台下发命令类型
+enum CmdType{
+    CMD_GET_PARAMS = 1;
+    CMD_SET_PARAMS = 2;
+}
+// 报警类型
+enum AlarmLevel{
+    LEVEL_NORMAL  = 1;  // 压力正常
+    LEVEL_LOOSE_1 = 2;  // 松动1级
+    LEVEL_LOOSE_2 = 3;  // 松动2级
+    LEVEL_GUOYA_1 = 4;  // 过压1级
+    LEVEL_GUOYA_2 = 5;  // 过压2级
+}
+message SensorData {
+  required sint32     value    = 1;
+  optional uint32     para     = 2; // 同终端,同类型传感器不同分量,如x,y,z轴,从1开始编号
+}
+message Sensor {
+  required SensorType type     = 1;
+  repeated SensorData data     = 2;
+  optional AlarmLevel level    = 3;
+  optional uint32     index    = 4 [default = 1]; // 同终端,同类型传感器编号,从1开始
+}
+
+// 通用数据上报消息类型,
+message NodeData{
+  required string     gateway_id = 1 [(nanopb).max_length = 15];
+  optional uint32     node_addr  = 2;
+  optional NodeType   node_type  = 3;
+  required uint32     timestamp  = 4;
+  optional SensorData data       = 5;
+}
+
+message NodeID{
+    required string   node_id   = 1 [(nanopb).max_length = 15];
+    required NodeType node_type = 2;
+}
+
+message NodeCmd{
+  required string     node_id   = 1 [(nanopb).max_length = 15];
+  required NodeType   node_type = 2;
+  required CmdType    cmd_type  = 3;
+  optional NodeParamsA params_a = 4;
+  optional NodeParamsB params_b = 5;
+}
+
+// 终端命令回复消息
+message NodeCmdReply{
+  required string     node_id   = 1;
+  required NodeType   node_type = 2;
+  optional uint32     timestamp = 3;
+  optional NodeParamsA params_a = 4;
+  optional NodeParamsB params_b = 5;
+}
+
+// 压力传感器配置
+message NodeParamsA {
+  optional uint32 gui_ling       = 1;  // 归零
+  optional uint32 biao_ding_1    = 2;  // 标定1
+  optional uint32 biao_ding_2    = 3;  // 标定2
+  optional uint32 biao_ding_3    = 4;  // 标定3
+  optional uint32 song_dong_1    = 5;  // 松动值1
+  optional uint32 song_dong_2    = 6;  // 松动值2
+  optional uint32 op_pressure    = 7;  // 过压值
+  optional uint32 wake_time      = 8;  // 唤醒时间
+  optional uint32 tmv            = 9;  // 温度修订数据
+  optional uint32 rf_power       = 10; // 射频功率
+  optional uint32 rf_frequency   = 11; // 射频频率
+  optional string server_addr_1  = 12; // 数据网关地址1
+  optional uint32 server_port_1  = 13; // 数据网关端口1
+  optional string server_addr_2  = 14; // 数据网关地址2
+  optional uint32 server_port_2  = 15; // 数据网关端口2
+  optional uint32 realtime       = 16; // 实时时钟
+}
+
+// 倾斜传感器配置
+message NodeParamsB {
+  optional uint32 wake_time      = 1;  // 唤醒时间
+  optional sint32 axis_x         = 2; // 当前倾斜角x轴分量
+  optional sint32 axis_y         = 3; // 当前倾斜角y轴分量
+  optional sint32 axis_z         = 4; // 当前倾斜角z轴分量
+  optional string server_addr_1  = 5; // 数据网关地址1
+  optional uint32 server_port_1  = 6; // 数据网关端口1
+  optional string server_addr_2  = 7; // 数据网关地址2
+  optional uint32 server_port_2  = 8; // 数据网关端口2
+  optional uint32 realtime       = 9; // 实时时钟
+}
+#+END_EXAMPLE
+* IAM202产品标定协议
+** 标定协议总则
+1. 统一采用protobuf序列化协议
+2. 添加crc32校验,应对串口传输可能出错的情况
+3. 添加数据帧头和数据帧尾,并添加转义
+4. 协议采用小端模式,高字节在前,低字节在后
+5. 协议标定为应答模式
+** protobuf定义消息如下
+#+BEGIN_EXAMPLE :exports code
+syntax = "proto2";
+enum CmdType{
+    CMD_GET_PARAMS = 1;
+    CMD_SET_PARAMS = 2;
+}
+// 报警类型
+enum AlarmLevel{
+    LEVEL_NORMAL  = 1;  // 压力正常
+    LEVEL_LOOSE_1 = 2;  // 松动1级
+    LEVEL_LOOSE_2 = 3;  // 松动2级
+    LEVEL_GUOYA_1 = 4;  // 过压1级
+    LEVEL_GUOYA_2 = 5;  // 过压2级
+}
+
+message IAM202Params {
+  optional uint32 gui_ling     = 1;  // 归零
+  optional uint32 biao_ding_1  = 2;  // 标定1
+  optional uint32 biao_ding_2  = 3;  // 标定2
+  optional uint32 biao_ding_3  = 4;  // 标定3
+  optional uint32 song_dong_1  = 5;  // 松动值1
+  optional uint32 song_dong_2  = 6;  // 松动值2
+  optional uint32 op_pressure  = 7;  // 过压值
+  optional uint32 wake_time    = 8;  // 唤醒时间
+  optional uint32 tmv          = 9;  // 温度修订数据
+  optional uint32 rf_power     = 10; // 射频功率
+  optional uint32 rf_frequency = 11; // 射频频率
+}
+
+message  IAM202Data {
+  require AlarmLevel level = 1;
+  required sint32    value = 2;
+}
+
+message IAM202Msg {
+  required CmdType cmd_type = 1;
+  optional IAM202Params     = 2;
+  optional IAM202Data       = 3;
+}
+#+END_EXAMPLE
+**  在数据帧末尾添加4个字节的crc32校验,采用小端模式,高字节在前,低字节在后
+1. 调用protoc序列化消息后,从第一个字节开始计算crc校验,crc32校验采用标准的crc校验算法.
+2. 举例说明,字符串"123456789" 计算出结果为 0xCBF43926
+3. https://crccalc.com/ 
+** 对数据帧进行转义,并添加数据帧头0xDD和数据帧尾0x55
+转义规则如下
+1. 转义前，crc32已经计算完成并放入数据帧中）。
+2. 发送数据帧时，须首先对数据帧内数据进行转义
+3. 0xDD转义为 0x1B 0xE1两字节；
+4. 0x55转义为0x1B 0xE2两字节；
+5. 0x1B转义为0x1B 0x00两字节；
+6. 数据转义完成后，为转义后的数据附加帧头0xDD和帧尾0x55（帧头放于帧类型前，帧尾放于crc32后），发送即可
+7. 接收数据帧时，根据帧头（0xDD）、帧尾（0x55）来寻找数据帧，找到一组帧头帧尾，那么帧头帧尾之间的即为一个数据帧。
+8. 收到数据帧后去除帧头，帧尾，然后对不含帧头帧尾的数据帧进行反转义：
+9. 数据中的0x1B 0xE1两字节还原为0xDD；数据中的0x1B 0xE2两字节还原为0x55；
+10. 数据中的0x1B 0x00两字节还原为0x1B。还原后即得到了原始数据帧；
+11. 得到原始数据帧后，即可进行校验等下一步操作。
+12. 帧头帧尾用于标识数据帧的开始结束.

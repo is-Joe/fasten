@@ -1,0 +1,112 @@
+<template>
+  <v-app :dark="true">
+    <router-view></router-view>
+
+    <!-- theme setting -->
+    <v-btn
+      small
+      fab
+      dark
+      fixed
+      top="top"
+      right="right"
+      class="setting-fab"
+      color="red"
+      @click="openThemeSettings"
+    >
+      <v-icon>settings</v-icon>
+    </v-btn>
+    <!-- setting drawer -->
+    <v-navigation-drawer
+      class="setting-drawer"
+      temporary
+      right
+      v-model="rightDrawer"
+      hide-overlay
+      fixed
+    >
+      <theme-settings></theme-settings>
+    </v-navigation-drawer>
+    <!-- global snackbar -->
+    <v-snackbar
+      :timeout="3000"
+      top
+      v-model="snackbar.show"
+    >
+      <template v-slot:action="{ attrs }">
+      {{ snackbar.text }}
+          <!-- <v-btn dark text @click.native="snackbar.show = false" icon> -->
+      <v-btn color="pink" text v-bind="attrs" @click="snackbar.show = false">
+        <v-icon>close</v-icon>
+      </v-btn>
+      </template>
+    </v-snackbar>
+  </v-app>
+</template>
+
+<script>
+import ThemeSettings from '@/components/ThemeSettings'
+export default {
+  components: {
+    ThemeSettings
+  },
+  data() {
+    return {
+      rightDrawer: false,
+      snackbar: {
+        show: false,
+        text: '',
+        color: ''
+      }
+    }
+  },
+
+  mounted() {
+    if (typeof window !== undefined && window._VMA === undefined) {
+      window._VMA = this
+    }
+  },
+
+  created() {
+    // add app events
+      this.$on('AUTH_FAILED', (e) => {
+          this.snackbar = {
+              show: true,
+              text: e.message
+          }
+          this.$router.push({
+              path: '/auth/login'
+          })
+      })
+      this.$on('API_FAILED', (e) => {
+          this.snackbar = {
+              show: true,
+              text: e.reason
+          }
+      })
+      this.$on('SHOW_SNACKBAR', (e) => {
+          this.snackbar = {
+              show: true,
+              text: e.text,
+              color: e.color
+          }
+      })
+
+    // this.initWebsocket()
+  },
+  methods: {
+    openThemeSettings() {
+      this.$vuetify.goTo(0)
+      this.rightDrawer = !this.rightDrawer
+    }
+  }
+}
+</script>
+
+<style lang="sass" scoped>
+@import '../node_modules/typeface-roboto/index.css'
+.setting-fab
+  top: 50% !important
+  right: 0
+  border-radius: 0
+</style>

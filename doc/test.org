@@ -1,0 +1,13 @@
+#+TITLE: Using tikz in org
+
+
+#+HEADER: :file contour.svg :imagemagick yes
+#+HEADER: :results output silent :headers '("\\usepackage{tikz}")
+#+HEADER: :fit yes :imoutoptions -geometry 400 :iminoptions -density 600
+#+BEGIN_src latex
+\begin{tikzpicture}
+\draw[->] (-3,0) -- (-2,0) arc[radius=0.5cm,start angle=-180,end angle=0] (-1,0) -- (1,0) arc[radius=0.5cm,start angle=180,end angle=0] (2,0) -- (3,0);
+\filldraw (-1.5,0) circle[radius=1mm];
+\filldraw (1.5,0) circle[radius=1mm];
+\end{tikzpicture}
+#+END_src

@@ -2,7 +2,7 @@
   <v-app id="inspire" class="app dashboard">
     <app-drawer class="app--drawer" :show-drawer="showDrawer" />
     <app-toolbar class="app--toolbar" @side-icon-click="handleDrawerVisiable" />
-    <v-main>
+    <v-main> 
       <!-- Page Header -->
         <div class="page-wrapper">
             <router-view />
@@ -48,4 +48,13 @@ export default {
 <style lang="sass" scoped>
 .page-wrapper
   min-height: calc(100vh - 64px - 50px - 81px)
+
+.h
+  width: 100px
+  height: 100px
+  background: red
+  position: absolute
+  index: 5
+  
+
 </style>

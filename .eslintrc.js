@@ -5,8 +5,13 @@ module.exports = {
     node: true,
   },
   extends: [
+<<<<<<< HEAD
     'plugin:vue/essential', 
     '@vue/prettier'
+=======
+    'plugin:vue/essential',
+    // '@vue/prettier'
+>>>>>>> welcome
   ],
   rules: {
     'no-console': 'off',

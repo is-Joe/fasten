@@ -1,9 +1,10 @@
 import { LayoutAuth, LayoutDefault, LayoutChat } from '@/components/layouts'
 
 export const publicRoute = [
+  // 默认路径
   {
-    path: '*',
-    component: () => import('@/views/error/NotFound.vue')
+    path: '/',
+    redirect: '/auth'
   },
   {
     path: '/auth',
@@ -33,7 +34,14 @@ export const publicRoute = [
       }
     ]
   },
-
+  {
+    path: '/500',
+    name: '500',
+    meta: {
+      title: 'Server Error'
+    },
+    component: () => import('@/views/error/Error.vue')
+  },
   {
     path: '/404',
     name: '404',
@@ -42,14 +50,9 @@ export const publicRoute = [
     },
     component: () => import('@/views/error/NotFound.vue')
   },
-
   {
-    path: '/500',
-    name: '500',
-    meta: {
-      title: 'Server Error'
-    },
-    component: () => import('@/views/error/Error.vue')
+    path: '*',
+    component: () => import('@/views/error/NotFound.vue')
   }
 ]
 
@@ -97,7 +100,7 @@ export const protectedRoute = [
         },
         component: () => import('@/views/SensorList.vue')
       }
-    ]
+    ] 
   },
 
   //list
@@ -123,7 +126,7 @@ export const protectedRoute = [
   },
 
 
-  //list
+  //list  主页
   {
     path: '/cms',
     component: LayoutDefault,
@@ -145,7 +148,7 @@ export const protectedRoute = [
     ]
   },
 
-  //widgets
+  //widgets 
   {
     path: '/widgets',
     component: LayoutDefault,

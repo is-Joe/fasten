@@ -19,19 +19,21 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   NProgress.start();
   next();
-  
-  const token = store.getters.getAccessToken
-  if (to.path !== '/auth/login') {
-    if (token) {
-      next()
-    } else {
-      next({path: '/auth/login'})
-    }
-  } else {
-    next();
-  }
 
-  //auth route is authenticated
+  // const token = store.getters.getAccessToken
+  // if (to.path !== '/auth/login') {
+  //   if (token) {
+  //     next()
+  //   } else {
+  //     next({path: '/auth/login'}) 
+  //     // next();
+  //   }
+  //   // next();
+  // }else {
+  //   next();
+  // }
+
+  // auth route is authenticated
 })
 
 router.afterEach(() => {

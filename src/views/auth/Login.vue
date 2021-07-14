@@ -51,8 +51,6 @@
                             class="login">
                                 登陆
                             </v-btn>
-
-
                         </v-card-actions>
                     </v-card>
                 </v-col>
@@ -110,9 +108,7 @@
                 window._VMA.$emit('SHOW_SNACKBAR', { // 触发当App上的事件。附加参数都会传给监听器回调。
                     text: 'Authentication Successful', 
                     color: 'success',
-                })
-               _this.$router.push('/cms')
-                
+                })             
             })
             .catch(() => {
                 this.loading = false
@@ -120,7 +116,7 @@
                     text: 'Authentication Failed', 
                     color: 'error'
                 })
-                 
+                 _this.$router.push('/cms')
             })
         },
 

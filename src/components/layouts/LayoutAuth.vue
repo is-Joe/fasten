@@ -1,7 +1,8 @@
 <template>
-  <v-app class="layout-auth primary">
+  <v-app class="layout-auth primary"> 
     <v-main>
       <router-view :key="$route.path"></router-view>
+      <!-- $route.path" -->
     </v-main>
   </v-app>
 </template>

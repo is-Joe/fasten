@@ -2,7 +2,7 @@
   <v-app-bar color="primary" dark app>
     <v-app-bar-nav-icon @click="handleDrawerToggle" />
     <div class="d-flex align-center white--text text-h5">
-      <!-- 法智达智能传感器云平台 -->
+      法智达智能传感器云平台
     </div>
 
     <v-spacer />
@@ -12,15 +12,20 @@
            <v-btn icon href="https://github.com/tookit/vue-material-admin">
            <v-icon>mdi-github</v-icon>
            </v-btn> -->
-      <v-btn icon @click="handleFullScreen()">
+      <!-- <v-btn icon @click="handleFullScreen()">
         <v-icon>fullscreen</v-icon>
-      </v-btn>
+      </v-btn> -->
+
+      <!-- 警告铃铛 -->
       <v-menu
         offset-y
         origin="center center"
         class="elelvation-1"
         transition="scale-transition"
+        open-on-hover
       >
+
+        <!-- 铃铛 -->
         <template v-slot:activator="{ on }">
           <v-btn icon text slot="activator" v-on="on">
             <v-badge color="red" overlap>
@@ -29,17 +34,36 @@
             </v-badge>
           </v-btn>
         </template>
+
+        <!-- 下拉菜单 -->
         <notification-list></notification-list>
       </v-menu>
-      <v-menu offset-y origin="center center" transition="scale-transition">
+      
+    
+      <!-- 修改密码,退出 -->
+      <v-menu 
+      offset-y 
+      origin="center center" 
+      transition="scale-transition"
+      open-on-hover>
+        
         <template v-slot:activator="{ on }">
-          <v-btn icon large text slot="activator" v-on="on">
+
+          
+            <v-btn icon large text  v-on="on">
             <v-icon medium>logout</v-icon>
             <!-- <v-avatar size="30px">
                  <img src="/static/avatar/man_4.jpg" alt="Michael Wang" />
                  </v-avatar> -->
-          </v-btn>
+            </v-btn>
+        
+
         </template>
+       
+
+
+
+        
         <v-list class="pa-0">
           <v-list-item
             v-for="(item, index) in profileMenus"
@@ -55,26 +79,32 @@
             <v-list-item-action v-if="item.icon">
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-item-action>
+
             <v-list-item-content>
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item-content>
+
           </v-list-item>
         </v-list>
+          
       </v-menu>
+    
+
     </v-toolbar-items>
-    <v-toolbar tag="div" dense slot="extension" color="white" light>
+
+    <!-- <v-toolbar tag="div" dense slot="extension" color="white" light>
       <v-icon>mdi-home</v-icon>
       <v-breadcrumbs :items="breadcrumbs" class="pa-3" />
       <v-spacer></v-spacer>
       <v-btn icon small color="black">
         <v-icon v-text="'mdi-arrow-left'" @click="handleGoBack" />
       </v-btn>
-    </v-toolbar>
+    </v-toolbar> -->
   </v-app-bar>
 </template>
 <script>
  import NotificationList from '@/components/widgets/list/NotificationList'
- import Util from '@/util'
+//  import Util from '@/util'
  export default {
    name: 'AppToolbar',
    components: {
@@ -89,12 +119,12 @@
            title: '修改密码',
            click: this.handleProfile
          },
-         {
-           icon: 'settings',
-           href: '#',
-           title: '系统设置',
-           click: this.handleSetting
-         },
+        //  {
+        //    icon: 'settings',
+        //    href: '#',
+        //    title: '系统设置',
+        //    click: this.handleSetting
+        //  },
          {
            icon: 'fullscreen_exit',
            href: '#',
@@ -128,9 +158,9 @@
      handleDrawerToggle() {
        this.$emit('side-icon-click')
      },
-     handleFullScreen() {
-       Util.toggleFullScreen()
-     },
+    //  handleFullScreen() {
+    //    Util.toggleFullScreen()
+    //  },
      handleLogut() {
        // 注销用户数据 
        this.$store.commit('LOG_OUT')

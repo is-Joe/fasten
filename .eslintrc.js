@@ -6,8 +6,13 @@ module.exports = {
   },
   extends: [
 <<<<<<< HEAD
+<<<<<<< HEAD
     'plugin:vue/essential', 
     '@vue/prettier'
+=======
+    'plugin:vue/essential',
+    // '@vue/prettier'
+>>>>>>> welcome
 =======
     'plugin:vue/essential',
     // '@vue/prettier'

@@ -30,5 +30,10 @@ const app = new Vue({
 
 app.$mount('#app')
 
-//this is test welcome
+<<<<<<< HEAD
+//this is test welcome 7/14
+>>>>>>> welcome
+=======
+//this is test welcome 7/14
+>>>>>>> welcome
 

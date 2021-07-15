@@ -7,7 +7,7 @@ module.exports = {
   extends: [
 
     'plugin:vue/essential',
-    // '@vue/prettier'
+    // '@vue/prettier'gi
   ],
   rules: {
     'no-console': 'off',

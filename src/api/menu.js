@@ -1,6 +1,11 @@
 const Menu = [
   { header: '基础功能' },
   {
+    text: '云数据监测',
+    icon: "monitor",
+    to: '/cms',
+  },
+  {
     text: '项目列表',
     icon: 'dashboard',
     to: '/list',

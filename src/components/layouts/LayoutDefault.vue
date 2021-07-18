@@ -49,7 +49,7 @@ export default {
 
 <style lang="sass" scoped>
 .page-wrapper
-  min-height: calc(100vh - 48px - 55px)
+  height: 100%
   background-color: #eee
 .h
   width: 100px

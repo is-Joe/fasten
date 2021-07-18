@@ -29,7 +29,7 @@
     </v-navigation-drawer>
     <!-- global snackbar -->
     <v-snackbar
-      :timeout="3000"
+      :timeout="2000"
       top
       v-model="snackbar.show"
     >

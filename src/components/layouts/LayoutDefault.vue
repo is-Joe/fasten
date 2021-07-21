@@ -35,7 +35,7 @@ export default {
 
   data() {
     return {
-      showDrawer: true
+      showDrawer: false
     }
   },
   methods: {
@@ -49,7 +49,7 @@ export default {
 
 <style lang="sass" scoped>
 .page-wrapper
-  height: 100%
+  height: auto
   background-color: #eee
 .h
   width: 100px

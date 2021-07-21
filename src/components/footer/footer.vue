@@ -20,7 +20,6 @@ export default {
     .copyRight
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif
         background-color: #eee
-        position: absolute
         color: #999
         width: 100%
         bottom: 0px

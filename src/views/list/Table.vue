@@ -2,6 +2,7 @@
   <div id="table">
     <el-row :gutter="20">
       <el-col :span="7" class="col">
+        <!-- left -->
         <div class="col">
           <device :deviceData="deviceData"></device> 
           <device :deviceData="alertData"></device> 
@@ -26,8 +27,17 @@
           </el-card>
         </div>
       </el-col>
-      <el-col :span="10"><div class="col"></div></el-col>
-      <el-col :span="7"><div class="col"></div></el-col>
+      <el-col :span="10">
+        <div class="col"></div>
+      </el-col>
+      <el-col :span="7">
+        <div class="col">
+          <!-- live data -->
+          <el-card class="live-data" shadow="never">
+            <liveDataCard :liveData="liveData"></liveDataCard>
+          </el-card>
+        </div>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -36,68 +46,101 @@
 import device from "../DeviceAndAlert.vue"
 import deviceData from "@/api/device.js"
 import alertData from "@/api/alert.js"
+import liveDataCard from '@/views/liveDataCard'
+import liveData from "@/api/liveData.js"
 
 export default {
   data(){
     return{
-     deviceData,
-     alertData,
-     projects:[
-       {
-         id: "1",
-         name: '北京地铁项目',
-         devices:[
-           {
-            name: '一号锚固监测仪',
-            status: '正常',
-            statusCode: 1
-           },
-           {
-             name: '一号锚固监测仪',
-             status: '松动',
-           },
-           {
-             name: '一号锚固监测仪',
-             status: '微松动',
-           },
-           {
-             name: '一号锚固监测仪',
-             status: '微松动',
-           }
-         ]
-       },
-       {
-         id: "1",
-         name: '北京地铁项目',
-         devices:[
-           {
-             name: '一号锚固监测仪',
-             status: '微松动',
+      deviceData,
+      alertData,
+      projects:[
+        {
+          id: "1",
+          name: '北京地铁项目',
+          devices:[
+            {
+              name: '一号锚固监测仪',
+              status: '正常',
+              statusCode: 1
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '松动',
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '微松动',
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '微松动',
+            }
+          ]
+        },
+        {
+          id: "1",
+          name: '北京地铁项目',
+          devices:[
+            {
+              name: '一号锚固监测仪',
+              status: '微松动',
 
-           },
-           {
-             name: '一号锚固监测仪',
-             status: '正常',
-           },
-           {
-             name: '一号锚固监测仪',
-             status: '正常',
-           },
-           {
-             name: '一号锚固监测仪',
-             status: '正常',
-           }
-         ]
-       },
-      
-     ]
-    }  
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '正常',
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '正常',
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '正常',
+            }
+          ]
+        },
+        {
+          id: "1",
+          name: '北京地铁项目',
+          devices:[
+            {
+              name: '一号锚固监测仪',
+              status: '微松动',
+
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '正常',
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '正常',
+            },
+            {
+              name: '一号锚固监测仪',
+              status: '正常',
+            }
+          ]
+        },
+        
+      ],
+      liveData,
+    }
   },
   components:{
     device,
+    liveDataCard,
   },
   created(){
     console.log(deviceData)
+  },
+  mounted(){
+    
+  },
+  methods:{
+    
   }
 }
 </script>
@@ -134,4 +177,29 @@ export default {
   .devices
     max-height: 95px
     overflow: auto
+
+
+
+
+  .item
+    display: flex
+    width: 100%
+    height: 100%
+    .item-message
+      p
+        font-size: 12px
+        margin: 6px
+        .dangerColor
+          color: red
+    .item-state
+      display: flex
+      align-items: center
+      padding: 20px
+      .button
+        width: 80px
+        height: 80px
+      .dangerButton
+        background-color:#F56C6C
+        opacity: 0.8   
+     
 </style>

@@ -56,7 +56,7 @@
                 </v-col>
             </v-row>
         </v-container>
-        <appFooter></appFooter>
+        <appFooter class="login-footer"></appFooter>
     </div>
     
 </template>
@@ -168,4 +168,7 @@
 
     .login
         border-radius: 20px
+
+    .login-footer
+        margin-top: 76px
 </style>

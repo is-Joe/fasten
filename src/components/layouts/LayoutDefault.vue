@@ -12,8 +12,9 @@
         <span>法智达(北京)科技有限公司 &copy; {{ new Date().getFullYear() }}</span>
         <v-spacer />
       </v-footer> -->
-      <AppFooter></AppFooter> 
+      
     </v-main>
+    <AppFooter></AppFooter> 
     <!-- Go to top -->
     <app-fab />
   </v-app>

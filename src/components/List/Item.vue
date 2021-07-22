@@ -7,7 +7,7 @@
 
     <v-list-item-icon v-else-if="icon">
       <!-- <v-icon v-text="icon" /> -->
-      <v-icon>{{icon}}</v-icon>
+      <v-icon>{{icon}}</v-icon> 
     </v-list-item-icon>
 
     <v-list-item-content>

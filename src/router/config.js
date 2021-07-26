@@ -99,7 +99,35 @@ export const protectedRoute = [
           hiddenInMenu: true
         },
         component: () => import('@/views/SensorList.vue')
+      },
+      {
+        path: '/controller',
+        name: 'controller',
+        meta: {
+          title: '控制台',
+          hiddenInMenu: true
+        },
+        component: () => import('@/views/Controller.vue')
+      },
+      {
+        path: '/alert',
+        name: 'alert',
+        meta: {
+          title: '预警中心',
+          hiddenInMenu: true
+        },
+        component: () => import('@/views/Alert.vue')
+      },
+      {
+        path: '/upgrade',
+        name: 'upgrade',
+        meta: {
+          title: '软件升级',
+          hiddenInMenu: true
+        },
+        component: () => import('@/views/Upgrade.vue')
       }
+
     ] 
   },
 

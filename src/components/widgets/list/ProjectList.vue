@@ -5,6 +5,7 @@
         项目列表
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      <!-- dialog -->
       <v-dialog v-model="dialog" max-width="500px">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -15,38 +16,53 @@
             v-on="on"
           >新建项目</v-btn>
         </template>
+        <!-- editedCard -->
         <v-card>
           <v-card-title>
             <span class="headline">{{ formTitle }}</span>
           </v-card-title>
 
-          <v-card-text>
+          <v-card-text class="py-0">
             <v-container>
               <v-row>
-                <v-col cols="12" sm="6" md="4">
+                <v-col cols="12" class="col-input">
                     <v-text-field
                       v-model="editedItem.name"
                       label="项目名称"
+                      class="test py-0"
                     />
                 </v-col>
-                <v-col cols="12" sm="6" md="4">
+                <v-col cols="12" class="col-input">
                   <v-select
-                    label="项目类型"
-                    v-model="editedItem.type"
+                    label="用户类型"
+                    v-model="editedItem.userType"
                     :items="projectType"
-                    required
+                    required  
+                  
                   ></v-select>
                 </v-col>
-                <v-col cols="12" sm="6" md="4">
+                <v-col cols="12" class="col-input">
                   <v-select
                     label="单位名称"
-                    v-model="editedItem.company_id"
+                    v-model="editedItem.companyName"
                     item-text="name"
                     item-value="id"
                     :items="companies"
                     required
                   >
                   </v-select>
+                </v-col>
+                <v-col cols="12" class="col-input">
+                    <v-text-field
+                      v-model="editedItem.schedule"
+                      label="工程进度"
+                    />
+                </v-col>
+                <v-col cols="12" class="col-input">
+                   <v-text-field
+                      v-model="editedItem.notes"
+                      label="备注"
+                    />
                 </v-col>
               </v-row>
             </v-container>
@@ -62,6 +78,7 @@
     </v-toolbar>
     <v-divider></v-divider>
 
+    <!-- showCard -->
     <v-card-text class="pa-0">
       <v-data-table
         :headers="headers"
@@ -69,19 +86,22 @@
         hide-default-footer
         @dblclick:row="projectDetail">
         <template
-          v-slot:item.index="{ item }">
+          v-slot:[`item.index`]="{ item }">
             {{projects.indexOf(item)}}
         </template>
+      
         <template
-          v-slot:item.type="{ item }">
+          v-slot:[`item.type`]="{ item }">
             {{getProjectType(item.type)}}
         </template>
+
         <template
-          v-slot:item.company="{ item }">
+          v-slot:[`item.company`]="{ item }">
             {{getCompanyName(item.company_id)}}
         </template>
+
         <template
-          v-slot:item.actions="{ item }">
+          v-slot:[`item.actions`]="{ item }">
           <v-icon
             small
             class="mr-2"
@@ -108,140 +128,172 @@
  import Util from '@/util'
 
  export default {
-   data() {
-     return {
-       dialog: false,
-       headers: [
-         { text: '序号',
-           sortable: true,
-           width: 80,
-           value: 'index'
-         },
-         {
-           text: '工程名称',
-           align: 'left',
-           value: 'name'
-         },
-         {
-           text: '用户类型',
-           align: 'left',
-           value: 'type'
-         },
-         { text: '单位名称', align: 'center',value: 'company' },
-         { text: '动作', value: 'actions', align: 'right', sortable: false}
-       ],
+  data() {
+    return {
+      dialog: false,
+      headers: [
+        { text: '序号',
+          sortable: true,
+          width: 80,
+          value: 'index'
+        },
+        {
+          text: '工程名称',
+          align: 'left',
+          value: 'name'
+        },
+        {
+          text: '用户类型',
+          align: 'left',
+          value: 'type'
+        },
+        {
+          text: '单位名称', 
+          align: 'center',
+          value: 'company' 
+        },
+        { 
+          text: '工程进度',
+          value: 'process', 
+          align: 'right', 
+          sortable: false
+        },
+        { 
+          text: '备注',
+          value: 'notes', 
+          align: 'right', 
+          sortable: false
+        },
+        { 
+          text: '操作',
+          value: 'actions', 
+          align: 'right', 
+          sortable: false
+        }
+      ],
 
-       editedIndex: -1,
+      editedIndex: -1,
 
-       editedItem: {
-         id: '',
-         name: '',
-         type: 1,
-         company_id: '',
-         company:'',
-       },
-       defaultItem: {
-         id: '',
-         name: '',
-         type: 1,
-         company_id: '',
-         company:'',
-       },
-     }
-   },
+      editedItem: {
+        id: '',
+        name: '',
+        type: 1,
+        company_id: '',
+        company:'',
+        userType: ''
 
-    created () {
-      this.initialize()
+      },
+      defaultItem: {
+        id: '',
+        name: '',
+        type: 1,
+        company_id: '',
+        company:'',
+      },
+    }
+  },
+
+  created () {
+    this.initialize()
+  },
+
+  computed: {
+    formTitle () {
+      return this.editedIndex === -1 ? '新建项目' : '编辑项目'
+    },
+      ...mapState({
+          projects: state => state.project.projects,
+          projectType: state => state.project.projectTypes,
+          companies: state => state.company.companies,
+    }),
+      ...mapGetters([
+          'getProjectType',
+          'getCompanyName',
+    ]),
+  },
+
+  methods: {
+
+    projectDetail(mouseEvent, entry) {
+      this.$router.push({
+        path: '/widgets/chart/' + entry.item.id
+      })
     },
 
-   computed: {
-     formTitle () {
-       return this.editedIndex === -1 ? '新建项目' : '编辑项目'
-     },
-       ...mapState({
-           projects: state => state.project.projects,
-           projectType: state => state.project.projectTypes,
-           companies: state => state.company.companies,
-     }),
-       ...mapGetters([
-           'getProjectType',
-           'getCompanyName',
-     ]),
-   },
-
-   methods: {
-
-     projectDetail(mouseEvent, entry) {
-        this.$router.push({
-          path: '/widgets/chart/' + entry.item.id
+      ...mapActions([
+          'fetchProjects',
+          'createProject',
+          'updateProject',
+          'deleteProject',
+          'fetchCompanies',
+      ]),
+    // 初始化
+    initialize() {
+        this.fetchProjects().then((data) => {
+            console.log(data)
+          this.fetchCompanies().then((data) => {
+            console.log(data)
+          })
         })
-     },
+    },
 
-       ...mapActions([
-           'fetchProjects',
-           'createProject',
-           'updateProject',
-           'deleteProject',
-           'fetchCompanies',
-       ]),
-     initialize() {
-         this.fetchProjects().then((data) => {
-             console.log(data)
-            this.fetchCompanies().then((data) => {
-                console.log(data)
-            })
-         })
-     },
+    editItem (item) {
+      // 获取item的index,判断是编辑还是新增
+      this.editedIndex = this.projects.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.dialog = true
+    },
 
-     editItem (item) {
-       this.editedIndex = this.projects.indexOf(item)
-       this.editedItem = Object.assign({}, item)
-       this.dialog = true
-     },
+    deleteItem (item) {
+      if (!confirm('删除后数据不可恢复,确定删除此项目吗?')) {
+          return
+      }
 
-     deleteItem (item) {
-       if (!confirm('删除后数据不可恢复,确定删除此项目吗?')) {
-           return
-       }
+      this.deleteProject(item.id).then(() => {
+          this.fetchProjects()
+      })
+    },
+  //  submit
+    save() {
+      // 如果是编辑
+      if (this.editedIndex > -1) {
+        let item = this.editedItem
+        item.type = parseInt(item.type)
+        this.updateProject({id:item.id, data:item})
+        console.log(this.projects);
+      } else {
+        // 如果是新增
+        let item = this.editedItem
+        item.id = Util.uuidv4();
+        if (item.company_id === "") item.company_id = null
+        item.type = parseInt(item.type)
 
-       this.deleteProject(item.id).then(() => {
-           this.fetchProjects()
-       })
-     },
+        this.createProject(item)
+        console.log(this.projects);
+      }
+      this.close()
+    },
 
-     save() {
-        if (this.editedIndex > -1) {
-          let item = this.editedItem
-          item.type = parseInt(item.type)
+    close () {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+  },
 
-          this.updateProject({id:item.id, data:item})
-          console.log(this.projects);
-        } else {
-          let item = this.editedItem
-          item.id = Util.uuidv4();
-          if (item.company_id === "") item.company_id = null
-          item.type = parseInt(item.type)
-
-          this.createProject(item)
-          console.log(this.projects);
-        }
-        this.close()
-     },
-
-     close () {
-       this.dialog = false
-       this.$nextTick(() => {
-         this.editedItem = Object.assign({}, this.defaultItem)
-         this.editedIndex = -1
-       })
-     },
-   },
-
-   watch: {
-     dialog (val) {
-       val || this.close()
-     },
-   },
+  watch: {
+    dialog (val) {
+      val || this.close()
+    },
+  },
 
  }
 </script>
+<style scoped lang="sass">
+  .col-input
+    padding: 1px
+   
+   
+</style>

@@ -8,7 +8,12 @@ import {
 } from '@/api/service'
 
 const state = {
-  companies: [],
+  companies: [
+    {
+      id: 1,
+      name: '铁建集团'
+    }
+  ],
 }
 
 const getters = {

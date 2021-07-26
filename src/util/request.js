@@ -7,7 +7,7 @@ const service = axios.create({
   timeout: 50000, // 请求超时时间,
   headers: { 'Access-Control-Allow-Origin': '*' }
 })
-
+// erro
 const err = (error) => {
   const { status, data } = error.response
   const { errors } = data

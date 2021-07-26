@@ -22,7 +22,7 @@
 export default {
     props:{
         liveData:{
-            type: Object
+            type: Array,
         }
     },
     data(){

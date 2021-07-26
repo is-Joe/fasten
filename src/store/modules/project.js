@@ -8,16 +8,26 @@ import {
 } from '@/api/service'
 
 const state = {
-  projects: [],
-    projectTypes: [
-    {text:'演示项目', value:1},
-    {text:'试用项目', value:2},
-    {text:'合同项目', value:3}
+  projects:[
+    {
+      id: '',
+      name: '北京地铁项目',
+      type: 2,
+      company:'',
+      company_id: '1',
+      process: '已竣工',
+      notes: '无',
+   }, 
+  ],
+  projectTypes: [
+      {text:'演示项目', value:1},
+      {text:'试用项目', value:2},
+      {text:'合同项目', value:3}
   ],
 }
 
 const getters = {
-    getProjectType: (state) => (value) => {
+  getProjectType: (state) => (value) => {
     return state.projectTypes.find(item => item.value == value).text;
   },
 
@@ -69,6 +79,7 @@ const mutations = {
     state.projects = state.projects.filter((item) => item.id !== data.id)
   },
   UPDATE_PROJECT(state, data) {
+    //为什么进行findIndex
     let index = state.projects.findIndex(item => item.id == data.id);
     Vue.set(state.projects, index, data);
   },

@@ -1,11 +1,9 @@
 <template>
   <div>
-    <v-container>
+    <v-container class="container">
       <v-row>
         <v-col cols="12">
           <plain-table />
-        </v-col>
-        <v-col cols="12">
         </v-col>
       </v-row>
     </v-container>
@@ -27,3 +25,6 @@ export default {
   }
 }
 </script>
+<style scoped lang="sass">
+  
+</style>

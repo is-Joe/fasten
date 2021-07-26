@@ -20,7 +20,19 @@ const Menu = [
     icon: 'dashboard',
     to: '/users',
   },
-
+  {
+    text: '控制台首页',
+    icon: 'dashboard',
+    to: '/controller',
+  },{
+    text: '预警中心',
+    icon: 'dashboard',
+    to: '/alert',
+  },{
+    text: '监测仪软件升级',
+    icon: 'dashboard',
+    to: '/upgrade',
+  },
   // {
   //   text: '项目详情',
   //   icon: 'view_compact',

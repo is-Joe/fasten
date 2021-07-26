@@ -23,9 +23,11 @@ export default {
         color: #999
         width: 100%
         bottom: 0px
+        position: relative
         line-height: 42px
         opacity: 0.9
         font-size: 10px
+        margion
         a
             color: #999
             padding-left: 6px

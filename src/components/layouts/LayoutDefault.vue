@@ -2,7 +2,7 @@
   <v-app id="inspire" class="app dashboard">
     <app-drawer class="app--drawer" :show-drawer="showDrawer" />
     <app-toolbar class="app--toolbar" @side-icon-click="handleDrawerVisiable" />
-    <v-main> 
+    <v-main class="outer-wrapper"> 
       <!-- Page Header -->
         <div class="page-wrapper">
             <router-view />
@@ -12,8 +12,9 @@
         <span>法智达(北京)科技有限公司 &copy; {{ new Date().getFullYear() }}</span>
         <v-spacer />
       </v-footer> -->
-      <AppFooter></AppFooter> 
+      
     </v-main>
+    <AppFooter></AppFooter> 
     <!-- Go to top -->
     <app-fab />
   </v-app>
@@ -49,7 +50,7 @@ export default {
 
 <style lang="sass" scoped>
 .page-wrapper
-  height: auto
+  height: 100%
   background-color: #eee
 .h
   width: 100px

@@ -1,10 +1,21 @@
 <template>
-  <v-card>
+  <v-card 
+  :elevation = 0
+  outlined>
     <v-toolbar text dense flat>
       <v-toolbar-title>
         项目列表
       </v-toolbar-title>
-      <v-spacer></v-spacer>
+      
+      
+      <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="请输入项目名称"
+          single-line
+          hide-details
+          class="self-mx"
+        ></v-text-field>
       <!-- dialog -->
       <v-dialog v-model="dialog" max-width="500px">
         <template v-slot:activator="{ on, attrs }">
@@ -83,8 +94,8 @@
       <v-data-table
         :headers="headers"
         :items="projects"
-        hide-default-footer
-        @dblclick:row="projectDetail">
+        @dblclick:row="projectDetail"
+        :search = "search" >
         <template
           v-slot:[`item.index`]="{ item }">
             {{projects.indexOf(item)}}
@@ -116,7 +127,6 @@
             mdi-delete
           </v-icon>
         </template>
-
       </v-data-table>
       <v-divider />
     </v-card-text>
@@ -130,6 +140,7 @@
  export default {
   data() {
     return {
+      search:'',
       dialog: false,
       headers: [
         { text: '序号',
@@ -140,17 +151,20 @@
         {
           text: '工程名称',
           align: 'left',
-          value: 'name'
+          value: 'name',
+          sortable: true,
         },
         {
           text: '用户类型',
           align: 'left',
-          value: 'type'
+          value: 'type',
+          sortable: true,
         },
         {
           text: '单位名称', 
           align: 'center',
-          value: 'company' 
+          value: 'company',
+          sortable: true,
         },
         { 
           text: '工程进度',
@@ -294,6 +308,8 @@
 <style scoped lang="sass">
   .col-input
     padding: 1px
-   
+  
+  .self-mx
+    margin: 0 200px
    
 </style>

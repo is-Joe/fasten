@@ -28,7 +28,9 @@
         </div>
       </el-col>
       <el-col :span="10">
-        <div class="col"></div>
+        <div class="col">
+          <dataVisualization></dataVisualization>
+        </div>
       </el-col>
       <el-col :span="7">
         <div class="col">
@@ -48,6 +50,7 @@ import deviceData from "@/api/device.js"
 import alertData from "@/api/alert.js"
 import liveDataCard from '@/views/liveDataCard'
 import liveData from "@/api/liveData.js"
+import dataVisualization from "@/views/dataVisualization"
 
 export default {
   data(){
@@ -132,6 +135,7 @@ export default {
   components:{
     device,
     liveDataCard,
+    dataVisualization
   },
   created(){
     console.log(deviceData)

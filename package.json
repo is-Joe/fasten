@@ -15,7 +15,7 @@
     "@vue/cli": "^4.5.9",
     "axios": "^0.21.0",
     "core-js": "^3.3.2",
-    "echarts": "^5.0.0",
+    "echarts": "^5.1.2",
     "element-ui": "^2.15.3",
     "glob": "^7.1.6",
     "lodash.truncate": "^4.4.2",

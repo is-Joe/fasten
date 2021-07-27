@@ -15,6 +15,9 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import ElementUI from 'element-ui' //element-ui的全部组件
 import 'element-ui/lib/theme-chalk/index.css'//element-ui的css
+
+import echarts from './plugins/echartsUI'
+
 Vue.use(ElementUI) //使用elementUI
 
 Vue.use(VueAxios, axios)
@@ -31,4 +34,7 @@ const app = new Vue({
 app.$mount('#app')
 
 //this is test welcome 7/14
+
+Vue.prototype.$echarts = echarts
+
 

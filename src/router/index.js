@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import { publicRoute, protectedRoute } from './config'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import store from '../store/'
+// import store from '../store/'
 
 const routes = publicRoute.concat(protectedRoute)
 // const routes = publicRoute
@@ -16,9 +16,9 @@ const router = new Router({
 })
 
 // router guards
-router.beforeEach((to, from, next) => {
-  NProgress.start();
-  next();
+// router.beforeEach((to, from, next) => {
+//   NProgress.start();
+//   next();
 
   // const token = store.getters.getAccessToken
   // if (to.path !== '/auth/login') {
@@ -34,7 +34,7 @@ router.beforeEach((to, from, next) => {
   // }
 
   // auth route is authenticated
-})
+// })
 
 router.afterEach(() => {
   NProgress.done()

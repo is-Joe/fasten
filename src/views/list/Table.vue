@@ -1,7 +1,7 @@
 <template>
   <div id="table">
     <el-row :gutter="20">
-      <el-col :span="7" class="col">
+      <el-col :lg="7" class="col" >
         <!-- left -->
         <div class="col">
           <device :deviceData="deviceData"></device> 
@@ -27,10 +27,13 @@
           </el-card>
         </div>
       </el-col>
-      <el-col :span="10">
-        <div class="col"></div>
+      <el-col :lg="10" >
+        <div class="col">
+          <dataVisualization :echartsData = "angleData"></dataVisualization>
+          <dataVisualization :echartsData = "stressData"></dataVisualization>
+        </div>
       </el-col>
-      <el-col :span="7">
+      <el-col :lg="7" class="hidden-md-only">
         <div class="col">
           <!-- live data -->
           <el-card class="live-data" shadow="never">
@@ -48,6 +51,7 @@ import deviceData from "@/api/device.js"
 import alertData from "@/api/alert.js"
 import liveDataCard from '@/views/liveDataCard'
 import liveData from "@/api/liveData.js"
+import dataVisualization from "@/views/dataVisualization"
 
 export default {
   data(){
@@ -127,11 +131,149 @@ export default {
         
       ],
       liveData,
+      angleData:{
+            title: {
+                text: '北京地铁一号监测仪',
+                
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['微倾斜', '严重倾斜', 'X轴倾斜角度','Y轴倾斜角度'],
+                top: 25
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '1%',
+                containLabel: true
+            },
+            toolbox: {
+            
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['18°', '19', '20', '21', '22', '23', '24','25','26','27']
+            },
+            yAxis: {
+                type: "value",
+            },
+            series: [
+                {
+                    symbol:'circle',
+                    name: '微倾斜',
+                    type: 'line',
+                    itemStyle: {
+                        normal: {
+                            color: 'rgba(233,30,99,0.6)', //改变折线点的颜色
+                            lineStyle: {
+                                color: 'rgba(233,30,99,0.6)' //改变折线颜色
+                            }
+                        }
+                    },
+                    data: [2, 2, 2, 2, 2, 2, 2,2,2,2]
+                },
+                {
+                    symbol:'circle',
+                    name: '严重倾斜',
+                    type: 'line',
+                    itemStyle: {
+                        normal: {
+                            color: 'red', //改变折线点的颜色
+                            lineStyle: {
+                                color: 'red' //改变折线颜色
+                            }
+                        }
+                    },
+                    data: [5, 5, 5, 5, 5, 5, 5,5,5,5]
+                },
+                {
+                    name: 'X轴倾斜角度',
+                    type: 'line',
+                    data: [1.5, 2.3, 2.0, 4.5, 3.9, 2.3, 1.1,3.0,3.2,1.9],
+                    smooth: true
+                },
+                {
+                    name: 'Y轴倾斜角度',
+                    type: 'line',
+                    data: [ 3.3, 1.1,3.0,3.2,1.9,1.5, 2.3, 2.0, 1.5, 1.9],
+                    smooth: true
+                },
+            ]
+      },
+      stressData:{
+          title: {
+              text: '信号塔三号监测仪',
+          },
+          tooltip: {
+              trigger: 'axis'
+          },
+          legend: {
+              data: ['微倾斜', '严重倾斜', 'X轴倾斜角度','Y轴倾斜角度'],
+              top: 25
+          },
+          grid: {
+              left: '3%',
+              right: '4%',
+              bottom: '1%',
+              containLabel: true
+          },
+          toolbox: {
+          
+          },
+          xAxis: {
+              type: 'category',
+              boundaryGap: false,
+              data: ['18', '19', '20', '21', '22', '23', '24','25','26','27']
+          },
+          yAxis: {
+              type: "value",
+          },
+          series: [
+              {
+                  symbol:'circle',
+                  name: '微倾斜',
+                  type: 'line',
+                  itemStyle: {
+                      normal: {
+                          color: 'rgba(233,30,99,0.6)', //改变折线点的颜色
+                          lineStyle: {
+                              color: 'rgba(233,30,99,0.6)' //改变折线颜色
+                          }
+                      }
+                  },
+                  data: [20, 20, 20, 20, 20, 20, 20,20,20,20]
+              },
+              {
+                  symbol:'circle',
+                  name: '严重倾斜',
+                  type: 'line',
+                  itemStyle: {
+                      normal: {
+                          color: 'red', //改变折线点的颜色
+                          lineStyle: {
+                              color: 'red' //改变折线颜色
+                          }
+                      }
+                  },
+                  data: [40, 40, 40, 40, 40, 40, 40,40,40,40]
+              },
+              {
+                  name: 'Y轴倾斜角度',
+                  type: 'line',
+                  data: [ 33, 11,30,32,19,15, 23, 20, 15, 19],
+                  smooth: true
+              },
+          ]
+    },
     }
   },
   components:{
     device,
     liveDataCard,
+    dataVisualization
   },
   created(){
     console.log(deviceData)

@@ -2,7 +2,8 @@
   <v-navigation-drawer
     app
     class="app--drawer"
-    :mini-variant.sync="mini"
+    temporary
+      :mini-variant.sync="mini"
     v-model="drawer"
     :width="drawWidth"
     :dark="$vuetify.dark"

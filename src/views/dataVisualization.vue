@@ -2,7 +2,7 @@
     <div id="app">
         <v-card :elevation = 0 outlined  >
             <div ref="main" class="mai">
-       
+                
             </div>
         </v-card>
         

@@ -101,13 +101,14 @@
                 name: this.formModel.username,
                 pass_word: this.formModel.password
             })
-            .then(() => {
+            .then((ret) => {
                 _this.loading = false
                 window._VMA.$emit('SHOW_SNACKBAR', { // 触发当App上的事件。附加参数都会传给监听器回调。
                     text: 'Authentication Successful', 
                     color: 'success',
                 })  
-                _this.$router.push('/cms')            
+                _this.$router.push('/cms')     
+                 console.log(ret)      
             })
             .catch(() => {
                 this.loading = false
@@ -115,21 +116,8 @@
                     text: 'Authentication Failed', 
                     color: 'error'
                 })
-                //  _this.$router.push('/cms')
             })
            
-            // this.axios.post('http://140.143.237.22:3000/api/auth', {
-            //     name: this.formModel.username,
-            //     pass_word: this.formModel.password
-            // })
-            // .then(ret => {
-            //     console.log(ret);
-            // })
-            // .catch(() => {
-            //    console.log('false')
-            //   console.log(this.formModel.password);
-            //    console.log(this.formModel.username);
-            // })
 
         
         },

@@ -59,7 +59,7 @@ const actions = {
 }
 const mutations = {
   SET_ACCESS_TOKEN(state, token) {
-    state.access_token = token
+    state.access_token = token;
   }
 }
 

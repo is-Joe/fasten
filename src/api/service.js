@@ -3,7 +3,7 @@ import request from '@/util/request'
 export function login(data) {
   return request({
     // url: '/auth',
-    url: '140.143.237.22:3000',
+    url: 'http://140.143.237.22:3000',
     method: 'post',
     data: data,
   })

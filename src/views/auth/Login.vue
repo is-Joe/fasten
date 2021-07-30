@@ -94,28 +94,38 @@
         ...mapMutations(['changeLogin']),
 
         handleLogin() {
-            var _this = this;
-            this.loading = true
-            this.$store
-            .dispatch('login', {
+            // var _this = this;
+            // this.loading = true
+            // this.$store
+            // .dispatch('login', {
+            //     name: this.formModel.username,
+            //     pass_word: this.formModel.password
+            // })
+            // .then(() => {
+            //     _this.loading = false
+            //     window._VMA.$emit('SHOW_SNACKBAR', { // 触发当App上的事件。附加参数都会传给监听器回调。
+            //         text: 'Authentication Successful', 
+            //         color: 'success',
+            //     })             
+            // })
+            // .catch(() => {
+            //     this.loading = false
+            //     window._VMA.$emit('SHOW_SNACKBAR', {
+            //         text: 'Authentication Failed', 
+            //         color: 'error'
+            //     })
+            //     //  _this.$router.push('/cms')
+            // })
+           
+           this.axios.post('http://140.143.237.22:3000/api/auth', {
                 name: this.formModel.username,
-                pass_word: this.formModel.password
+                passs_word: this.formModel.password
             })
-            .then(() => {
-                _this.loading = false
-                window._VMA.$emit('SHOW_SNACKBAR', { // 触发当App上的事件。附加参数都会传给监听器回调。
-                    text: 'Authentication Successful', 
-                    color: 'success',
-                })             
+            .then(ret => {
+            console.log(ret);
             })
-            .catch(() => {
-                this.loading = false
-                window._VMA.$emit('SHOW_SNACKBAR', {
-                    text: 'Authentication Failed', 
-                    color: 'error'
-                })
-                 _this.$router.push('/cms')
-            })
+            
+        
         },
 
         // logins() {

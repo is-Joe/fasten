@@ -211,7 +211,7 @@ export default {
               trigger: 'axis'
           },
           legend: {
-              data: ['微倾斜', '严重倾斜', 'X轴倾斜角度','Y轴倾斜角度'],
+              data: ['过压', '微松动', '严重松动'],
               top: 25
           },
           grid: {
@@ -234,7 +234,7 @@ export default {
           series: [
               {
                   symbol:'circle',
-                  name: '微倾斜',
+                  name: '过压',
                   type: 'line',
                   itemStyle: {
                       normal: {
@@ -244,11 +244,11 @@ export default {
                           }
                       }
                   },
-                  data: [20, 20, 20, 20, 20, 20, 20,20,20,20]
+                  data: [40, 40, 40, 40, 40, 40, 40,40,40,40]
               },
               {
                   symbol:'circle',
-                  name: '严重倾斜',
+                  name: '微松动',
                   type: 'line',
                   itemStyle: {
                       normal: {
@@ -258,12 +258,18 @@ export default {
                           }
                       }
                   },
-                  data: [40, 40, 40, 40, 40, 40, 40,40,40,40]
+                  data: [30, 30, 30, 30, 30, 30, 30,30,30,30]
               },
               {
-                  name: 'Y轴倾斜角度',
+                  name: '严重松动',
                   type: 'line',
-                  data: [ 33, 11,30,32,19,15, 23, 20, 15, 19],
+                  data: [ 20, 20,20,20,20,20, 20, 20, 20, 20],
+                  smooth: true
+              },
+              {
+                  name: '力值',
+                  type: 'line',
+                  data: [ 20, 2,34,23,43,34,45 , 23, 23, 34],
                   smooth: true
               },
           ]

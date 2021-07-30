@@ -55,7 +55,7 @@
                 <v-col cols="12" class="col-input">
                   <v-select
                     label="单位名称"
-                    v-model="editedItem.company"
+                    v-model="editedItem.company_id"
                     item-text="name"
                     item-value="id"
                     :items="companies"

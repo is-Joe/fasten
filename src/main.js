@@ -18,10 +18,6 @@ import 'element-ui/lib/theme-chalk/index.css'//element-ui的css
 
 import echarts from './plugins/echartsUI'
 
-// import axios from 'axios'
-
-Vue.prototype.axios = axios
-
 Vue.use(ElementUI) //使用elementUI
 
 Vue.use(VueAxios, axios)

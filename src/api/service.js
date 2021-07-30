@@ -2,8 +2,7 @@ import request from '@/util/request'
 
 export function login(data) {
   return request({
-    // url: '/auth',
-    url: 'http://140.143.237.22:3000',
+    url: '/auth',
     method: 'post',
     data: data,
   })

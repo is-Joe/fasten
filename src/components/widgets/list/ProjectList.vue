@@ -37,16 +37,16 @@
             <v-container>
               <v-row>
                 <v-col cols="12" class="col-input">
-                    <v-text-field
-                      v-model="editedItem.name"
-                      label="项目名称"
-                      class="test py-0"
-                    />
+                  <v-text-field
+                    v-model="editedItem.name"
+                    label="项目名称"
+                    class="test py-0"
+                  />
                 </v-col>
                 <v-col cols="12" class="col-input">
                   <v-select
                     label="用户类型"
-                    v-model="editedItem.userType"
+                    v-model="editedItem.type"
                     :items="projectType"
                     required  
                   
@@ -55,7 +55,7 @@
                 <v-col cols="12" class="col-input">
                   <v-select
                     label="单位名称"
-                    v-model="editedItem.companyName"
+                    v-model="editedItem.company"
                     item-text="name"
                     item-value="id"
                     :items="companies"
@@ -65,7 +65,7 @@
                 </v-col>
                 <v-col cols="12" class="col-input">
                     <v-text-field
-                      v-model="editedItem.schedule"
+                      v-model="editedItem.process"
                       label="工程进度"
                     />
                 </v-col>

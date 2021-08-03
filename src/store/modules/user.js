@@ -8,7 +8,20 @@ import {
 } from '@/api/service'
 
 const state = {
-  users: [],
+  users: [
+    {
+      id: '',
+      cid: '1',
+      role: 1,
+      name: '小陈',
+      assignment: false,
+      disposition: false,
+      manageItem: false,
+      update: false,
+      manageUser: false,
+      notes: '已经上线'
+    }
+  ],
   roles: [
     {text:'管理员', value:1},
     {text:'超级管理员', value:2},

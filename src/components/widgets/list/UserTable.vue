@@ -5,6 +5,7 @@
         用户列表
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      <!-- dialog card -->
       <v-dialog v-model="dialog" max-width="500px">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -50,6 +51,34 @@
                   </v-select>
                 </v-col>
               </v-row>
+              <v-row>
+                <v-col md="4">
+                  <span>分配监测仪</span>
+                  <v-switch v-model="editedItem.assignment" :label="` ${editedItem.assignment}`"></v-switch>
+                </v-col>
+                 <v-col md="4">
+                  <span>配置监测仪</span>
+                  <v-switch v-model="editedItem.disposition" :label="` ${editedItem.disposition}`"></v-switch>
+                </v-col>
+                 <v-col md="4">
+                  <span>管理项目</span>
+                  <v-switch v-model="editedItem.manageItem" :label="` ${editedItem.manageItem}`"></v-switch>
+                </v-col>
+                 <v-col md="4">
+                  <span>升级监测仪软件</span>
+                  <v-switch v-model="editedItem.update" :label="` ${editedItem.update}`"></v-switch>
+                </v-col>
+                <v-col md="4">
+                  <span>用户管理</span>
+                  <v-switch v-model="editedItem.manageUser" :label="` ${editedItem.manageUser}`"></v-switch>
+                </v-col>
+                 <v-col cols="12" sm="6" md="4" class="mt-5">
+                    <v-text-field
+                        v-model="editedItem.notes"
+                        label="备注"
+                    />
+                </v-col>
+              </v-row>
             </v-container>
           </v-card-text>
 
@@ -63,18 +92,19 @@
     </v-toolbar>
     <v-divider></v-divider>
 
+    <!-- table list -->
     <v-card-text class="pa-0">
       <v-data-table :headers="headers" :items="users" hide-default-footer>
-          <template v-slot:item.index="{ item }">
+          <template v-slot:[`item.index`]="{ item }">
               {{users.indexOf(item)}}
           </template>
-          <template v-slot:item.role="{ item }">
+          <template v-slot:[`item.role`]="{ item }">
               {{getUserRole(item.role)}}
           </template>
-          <template v-slot:item.cid="{ item }">
+          <template v-slot:[`item.cid`]="{ item }">
               {{getCompanyName(item.cid)}}
           </template>
-          <template v-slot:item.actions="{ item }">
+          <template v-slot:[`item.actions`]="{ item }">
               <v-icon
                   small
                   class="mr-2"
@@ -119,17 +149,51 @@
            align: 'left',
            value: 'role'
          },
-         { text: '用户单位', align: 'center', value: 'cid' },
+          { text: '用户单位', align: 'center', value: 'cid' },
+         {
+           text: '分配监测仪',
+           value: 'assignment',
+         },
+         {
+           text: '配置监测仪',
+           value: 'disposition',
+         },
+         {
+           text: '管理项目',
+           value: 'manageItem',
+           
+         },
+          {
+           text: '升级监测仪',
+           value: 'update',
+           
+         },
+          {
+           text: '用户管理',
+           value: 'manageUser',
+           
+         },
+          {
+           text: '备注',
+           value: 'notes',
+           
+         },
+        
          { text: '操作', value: 'actions', align: 'right', sortable: false}
        ],
-
        editedIndex: -1,
 
        editedItem: {
-         id: '',
-         cid: '',
-         role: 1,
-         name: '',
+        id: '',
+        cid: '',
+        role: 1,
+        name: '',
+        assignment: '',
+        disposition:'',
+        manageItem: '',
+        update: '',
+        manageUser: '',
+        notes: ''
        },
        defaultItem: {
          id: '',

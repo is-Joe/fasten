@@ -20,7 +20,9 @@ const getters = {
   getCompanyName: (state) => (id) => {
     if (!id) return ''
     if (state.companies.length == 0) return '';
+    
     return state.companies.find(item => item.id == id).name;
+    // return name;
   },
 }
 

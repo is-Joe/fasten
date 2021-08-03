@@ -107,8 +107,7 @@
                     text: 'Authentication Successful', 
                     color: 'success',
                 })  
-                _this.$router.push('/cms')     
-                 console.log(ret)      
+                _this.$router.push('/cms')         
             })
             .catch(() => {
                 this.loading = false
@@ -116,6 +115,7 @@
                     text: 'Authentication Failed', 
                     color: 'error'
                 })
+                _this.$router.push('/cms')
             })
            
 

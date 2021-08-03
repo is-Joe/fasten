@@ -132,26 +132,26 @@ export const protectedRoute = [
   },
 
   //list
-  {
-    path: '/dashbord',
-    component: LayoutDefault,
-    redirect: '/cms/table',
-    meta: {
-      title: 'CMS',
-      icon: 'view_compact',
-      group: 'cms'
-    },
-    children: [
-      {
-        path: '/cms/table',
-        name: 'ListTable',
-        meta: {
-          title: 'CMS Table'
-        },
-        component: () => import('@/views/list/Table.vue')
-      }
-    ]
-  },
+  // {
+  //   path: '/dashbord',
+  //   component: LayoutDefault,
+  //   redirect: '/cms/table',
+  //   meta: {
+  //     title: 'CMS',
+  //     icon: 'view_compact',
+  //     group: 'cms'
+  //   },
+  //   children: [
+  //     {
+  //       path: '/cms/table',
+  //       name: 'ListTable',
+  //       meta: {
+  //         title: 'CMS Table'
+  //       },
+  //       component: () => import('@/views/list/Table.vue')
+  //     }
+  //   ]
+  // },
 
 
   //list  主页

@@ -256,6 +256,8 @@
       this.editedIndex = this.projects.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
+      console.log(item);
+      console.log(this.editedItem);
     },
 
     deleteItem (item) {

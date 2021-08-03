@@ -3,7 +3,7 @@ import store from '@/store'
 // create axios
 const service = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API_HOST + '/api/', // api base_url
-  baseURL: 'http://140.143.237.22:3000/api', // api base_url
+  // baseURL: 'http://140.143.237.22:3000/api', // api base_url
   timeout: 50000, // 请求超时时间,
   headers: { 'Access-Control-Allow-Origin': '*' }
 })

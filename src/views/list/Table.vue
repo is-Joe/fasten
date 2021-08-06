@@ -282,7 +282,7 @@ export default {
     dataVisualization
   },
   created(){
-    console.log(deviceData)
+    // console.log(deviceData)
   },
   mounted(){
     

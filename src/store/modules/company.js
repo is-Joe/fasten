@@ -8,21 +8,15 @@ import {
 } from '@/api/service'
 
 const state = {
-  companies: [
-    {
-      id: 1,
-      name: '铁建集团'
-    }
-  ],
+  companies: [],
 }
 
 const getters = {
   getCompanyName: (state) => (id) => {
     if (!id) return ''
     if (state.companies.length == 0) return '';
-    
-    return state.companies.find(item => item.id == id).name;
-    // return name;
+    let name = state.companies.find(item => item.id == id).name;
+    return name;
   },
 }
 

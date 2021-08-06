@@ -29,17 +29,17 @@
     </v-navigation-drawer>
     <!-- global snackbar -->
     <v-snackbar
-      :timeout="2000"
+      :timeout="3000"
       top
-      v-model="snackbar.show"
-    >
+      v-model="snackbar.show">
       <template v-slot:action="{ attrs }">
-      {{ snackbar.text }}
-          <!-- <v-btn dark text @click.native="snackbar.show = false" icon> -->
-      <v-btn color="pink" text v-bind="attrs" @click="snackbar.show = false">
-        <v-icon>close</v-icon>
-      </v-btn>
+        {{ snackbar.text }}
+            <!-- <v-btn dark text @click.native="snackbar.show = false" icon> -->
+        <v-btn color="pink" text v-bind="attrs" @click="snackbar.show = false">
+          <v-icon></v-icon>
+        </v-btn>
       </template>
+      
     </v-snackbar>
   </v-app>
 </template>

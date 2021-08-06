@@ -243,11 +243,13 @@
       ]),
     // 初始化
     initialize() {
+    //之所以两个请求相互嵌套是因为里面请求的数据依赖外面的数据
         this.fetchProjects().then((data) => {
             console.log(data)
-          this.fetchCompanies().then((data) => {
-            console.log(data)
-          })
+            this.fetchCompanies().then((data) => {
+              console.log(data)
+
+            })
         })
     },
 
@@ -256,8 +258,6 @@
       this.editedIndex = this.projects.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
-      console.log(item);
-      console.log(this.editedItem);
     },
 
     deleteItem (item) {

@@ -58,6 +58,12 @@
                   >
                   </v-select>
                 </v-col>
+                <v-col cols="4"> 
+                   <v-text-field
+                        v-model="editedItem.desc"
+                        label="备注"
+                    />
+                </v-col>
               </v-row>
             
             </v-container>
@@ -88,8 +94,8 @@
               {{getUserRole(item.role)}}
           </template>
           <template v-slot:[`item.cid`]="{ item }">
-              <!-- {{getCompanyName(item.cid)}} -->
-              {{item.cid}}
+              {{getCompanyName(item.cid)}}
+              <!-- {{item.cid}} -->
           </template>
           <template v-slot:[`item.actions`]="{ item }">
               <v-icon
@@ -124,50 +130,17 @@
        search: '',
        dialog: false,
        headers: [
-         { text: '序号',
-           sortable: true,
-           width: 80,
-           value: 'index'
-         },
-         { text: '用户名',
-           sortable: true,
-           value: 'name'
-         },
-         {
-           text: '用户类型',
-           align: 'left',
-           value: 'role'
-         },
-          { text: '用户单位', align: 'center', value: 'cid' },
-         {
-           text: '分配监测仪',
-           value: 'assignment',
-           sortable: false,
-         },
-         {
-           text: '配置监测仪',
-           value: 'disposition',
-           sortable: false,
-         },
-         {
-           text: '管理项目',
-           value: 'manageItem',
-           sortable: false,
-           
-         },
-          {
-           text: '升级监测仪',
-           value: 'update',
-           sortable: false,
-           
-         },
-          {
-           text: '用户管理',
-           value: 'manageUser',
-           sortable: false,
-         },
-        
-         { text: '操作', value: 'actions', align: 'right', sortable: false}
+        { text: '序号', sortable: true, width: 80,value: 'index' },
+        { text: '用户名', sortable: true, value: 'name' },
+        { text: '用户类型',  align: 'left',  value: 'role'},
+        { text: '用户单位', align: 'center', value: 'cid' },
+        { text: '分配监测仪',value: 'assignment',sortable: false,},
+        { text: '配置监测仪', value: 'disposition', sortable: false, },
+        { text: '管理项目', value: 'manageItem', sortable: false,  },
+        { text: '升级监测仪', value: 'update', sortable: false, },
+        { text: '用户管理', value: 'manageUser', sortable: false,},
+        { text: '备注',value: 'desc' },
+        { text: '操作', value: 'actions', align: 'right', sortable: false}
        ],
        editedIndex: -1,
 
@@ -176,13 +149,14 @@
         cid: '',
         role: 1,
         name: '',
-       
+        desc:''
        },
        defaultItem: {
          id: '',
          cid: '',
          role: 1,
          name: '',
+         desc:''
        },
 
        rules: {
@@ -193,6 +167,7 @@
 
     created () {
       this.initialize()
+
     },
 
    computed: {
@@ -221,14 +196,14 @@
      ]),
      initialize() {
         this.fetchUsers().then((data) => {
-            // console.log(data);
+            console.log(data);
 
        })
-        this.fetchCompanies().then((data) => {
+        this.fetchCompanies().then(() => {
             // console.log(data)
         })
        
-        console.log(this.users);
+        // console.log(this.users);
      },
 
      editItem (item) {

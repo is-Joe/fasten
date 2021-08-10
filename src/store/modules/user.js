@@ -24,7 +24,6 @@ const state = {
       manageItem: '是',
       update: '是',
       manageUser: '是',
-      notes: ''
     },
     {
       role: 2,
@@ -33,7 +32,6 @@ const state = {
       manageItem: '是',
       update: '否',
       manageUser: '否',
-      notes: ''
     },
     {
       role: 1,
@@ -42,7 +40,6 @@ const state = {
       manageItem: '否',
       update: '否',
       manageUser: '否',
-      notes: ''
     }
   ]
 }
@@ -57,6 +54,7 @@ const actions = {
   fetchUsers({ commit }, query) {
     return fetchUsers(query).then((resp) => {
       commit('SET_USERS', resp)
+      console.log(resp)
       return resp
     })
   },
@@ -75,6 +73,7 @@ const actions = {
   updateUser({ commit }, { id, data }) {
     return updateUser(id, data).then((resp) => {
       commit('UPDATE_USER', resp)
+     
       return resp
     })
   },

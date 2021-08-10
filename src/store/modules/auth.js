@@ -49,7 +49,7 @@ const getters = {
 const actions = {
   login({ commit }, payload) {
     return login(payload).then((data) => {
-      console.log(data)
+      // console.log(data)
       commit('SET_ACCESS_TOKEN', data.token)
     })
   },

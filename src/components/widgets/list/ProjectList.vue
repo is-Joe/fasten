@@ -64,14 +64,19 @@
                   </v-select>
                 </v-col>
                 <v-col cols="12" class="col-input">
-                    <v-text-field
-                      v-model="editedItem.process"
-                      label="工程进度"
-                    />
+                     <v-select
+                        label="工程进度"
+                        v-model="editedItem.progress"
+                        item-text="text"
+                        item-value="value"
+                        :items="projectProgress"
+                        required
+                      >
+                      </v-select>
                 </v-col>
                 <v-col cols="12" class="col-input">
                    <v-text-field
-                      v-model="editedItem.notes"
+                      v-model="editedItem.desc"
                       label="备注"
                     />
                 </v-col>
@@ -110,7 +115,10 @@
           v-slot:[`item.company`]="{ item }">
             {{getCompanyName(item.company_id)}}
         </template>
-
+        <template
+          v-slot:[`item.progress`]="{ item }">
+            {{getProjectProgress(item.progress)}}
+        </template>
         <template
           v-slot:[`item.actions`]="{ item }">
           <v-icon
@@ -143,47 +151,13 @@
       search:'',
       dialog: false,
       headers: [
-        { text: '序号',
-          sortable: true,
-          width: 80,
-          value: 'index'
-        },
-        {
-          text: '工程名称',
-          align: 'left',
-          value: 'name',
-          sortable: true,
-        },
-        {
-          text: '用户类型',
-          align: 'left',
-          value: 'type',
-          sortable: true,
-        },
-        {
-          text: '单位名称', 
-          align: 'center',
-          value: 'company',
-          sortable: true,
-        },
-        { 
-          text: '工程进度',
-          value: 'process', 
-          align: 'right', 
-          sortable: false
-        },
-        { 
-          text: '备注',
-          value: 'notes', 
-          align: 'right', 
-          sortable: false
-        },
-        { 
-          text: '操作',
-          value: 'actions', 
-          align: 'right', 
-          sortable: false
-        }
+        { text: '序号',sortable: true,width: 80,value: 'index' },
+        { text: '工程名称',align: 'left',value: 'name',sortable: true, },
+        { text: '用户类型',align: 'left',value: 'type',sortable: true,},
+        { text: '单位名称', align: 'center',value: 'company',sortable: true,},
+        { text: '工程进度',value: 'progress', align: 'right', sortable: false },
+        { text: '备注', value: 'desc',  align: 'right',  sortable: false},
+        { text: '操作',value: 'actions', align: 'right', sortable: false}
       ],
 
       editedIndex: -1,
@@ -193,22 +167,23 @@
         name: '',
         type: 1,
         company_id: '',
-        company:'',
-        userType: ''
-
+        progress: '',
+        desc: ''
       },
       defaultItem: {
         id: '',
         name: '',
         type: 1,
         company_id: '',
-        company:'',
+        progress: '',
+        desc: ''
       },
     }
   },
 
   created () {
     this.initialize()
+
   },
 
   computed: {
@@ -219,10 +194,12 @@
           projects: state => state.project.projects,
           projectType: state => state.project.projectTypes,
           companies: state => state.company.companies,
+          projectProgress: state => state.project.projectProgress
     }),
       ...mapGetters([
           'getProjectType',
           'getCompanyName',
+          'getProjectProgress'
     ]),
   },
 
@@ -248,7 +225,6 @@
             console.log(data)
             this.fetchCompanies().then((data) => {
               console.log(data)
-
             })
         })
     },
@@ -275,8 +251,9 @@
       if (this.editedIndex > -1) {
         let item = this.editedItem
         item.type = parseInt(item.type)
+          console.log(item);
         this.updateProject({id:item.id, data:item})
-        console.log(this.projects);
+      
       } else {
         // 如果是新增
         let item = this.editedItem
@@ -285,7 +262,6 @@
         item.type = parseInt(item.type)
 
         this.createProject(item)
-        console.log(this.projects);
       }
       this.close()
     },

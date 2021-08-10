@@ -9,21 +9,16 @@ import {
 
 const state = {
   projects:[
-    {
-      id: '',
-      name: '北京地铁项目',
-      type: 2,
-      company:'',
-      company_id: '1',
-      process: '已竣工',
-      notes: '无',
-   }, 
   ],
   projectTypes: [
       {text:'演示项目', value:1},
       {text:'试用项目', value:2},
       {text:'合同项目', value:3}
   ],
+  projectProgress: [
+      {text: '部署完毕',value: 1},
+      {text: '部署中',value: 2} 
+  ]
 }
 
 const getters = {
@@ -36,6 +31,10 @@ const getters = {
     if (state.projects.length == 0) return '';
     return state.projects.find(item => item.id == id).name;
   },
+  getProjectProgress: (state) =>(id) =>{
+    if(!id) return ''
+    return state.projectProgress.find(item => item.value == id).text;
+  }
 }
 
 const actions = {
@@ -53,6 +52,7 @@ const actions = {
   },
   createProject({ commit }, data) {
     return createProject(data).then((resp) => {
+      console.log(resp)
       commit('ADD_PROJECT', resp)
       return resp
     })
@@ -60,6 +60,7 @@ const actions = {
   updateProject({ commit }, { id, data }) {
     return updateProject(id, data).then((resp) => {
       commit('UPDATE_PROJECT', resp)
+      console.log(resp)
       return resp
     })
   },

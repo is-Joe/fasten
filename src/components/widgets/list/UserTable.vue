@@ -4,7 +4,15 @@
       <v-toolbar-title>
         用户列表
       </v-toolbar-title>
-      <v-spacer></v-spacer>
+      <!-- search tool -->
+      <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="请输入用户名"
+          single-line
+          hide-details
+          class="self-mx">
+      </v-text-field>
       <!-- dialog card -->
       <v-dialog v-model="dialog" max-width="500px">
         <template v-slot:activator="{ on, attrs }">
@@ -50,35 +58,14 @@
                   >
                   </v-select>
                 </v-col>
-              </v-row>
-              <v-row>
-                <v-col md="4">
-                  <span>分配监测仪</span>
-                  <v-switch v-model="editedItem.assignment" :label="` ${editedItem.assignment}`"></v-switch>
-                </v-col>
-                 <v-col md="4">
-                  <span>配置监测仪</span>
-                  <v-switch v-model="editedItem.disposition" :label="` ${editedItem.disposition}`"></v-switch>
-                </v-col>
-                 <v-col md="4">
-                  <span>管理项目</span>
-                  <v-switch v-model="editedItem.manageItem" :label="` ${editedItem.manageItem}`"></v-switch>
-                </v-col>
-                 <v-col md="4">
-                  <span>升级监测仪软件</span>
-                  <v-switch v-model="editedItem.update" :label="` ${editedItem.update}`"></v-switch>
-                </v-col>
-                <v-col md="4">
-                  <span>用户管理</span>
-                  <v-switch v-model="editedItem.manageUser" :label="` ${editedItem.manageUser}`"></v-switch>
-                </v-col>
-                 <v-col cols="12" sm="6" md="4" class="mt-5">
-                    <v-text-field
-                        v-model="editedItem.notes"
+                <v-col cols="4"> 
+                   <v-text-field
+                        v-model="editedItem.desc"
                         label="备注"
                     />
                 </v-col>
               </v-row>
+            
             </v-container>
           </v-card-text>
 
@@ -94,15 +81,21 @@
 
     <!-- table list -->
     <v-card-text class="pa-0">
-      <v-data-table :headers="headers" :items="users" hide-default-footer>
+      <v-data-table 
+        :headers="headers" 
+        :items="users"
+        :search ="search"
+
+       >
           <template v-slot:[`item.index`]="{ item }">
-              {{users.indexOf(item)}}
+              {{users.indexOf(item)}} 
           </template>
           <template v-slot:[`item.role`]="{ item }">
               {{getUserRole(item.role)}}
           </template>
           <template v-slot:[`item.cid`]="{ item }">
               {{getCompanyName(item.cid)}}
+              <!-- {{item.cid}} -->
           </template>
           <template v-slot:[`item.actions`]="{ item }">
               <v-icon
@@ -119,7 +112,6 @@
                   mdi-delete
               </v-icon>
           </template>
-
       </v-data-table>
       <v-divider />
     </v-card-text>
@@ -133,53 +125,22 @@
  export default {
    data() {
      return {
+
+       test:'hahah',
+       search: '',
        dialog: false,
        headers: [
-         { text: '序号',
-           sortable: true,
-           width: 80,
-           value: 'index'
-         },
-         { text: '用户名',
-           sortable: true,
-           value: 'name'
-         },
-         {
-           text: '用户类型',
-           align: 'left',
-           value: 'role'
-         },
-          { text: '用户单位', align: 'center', value: 'cid' },
-         {
-           text: '分配监测仪',
-           value: 'assignment',
-         },
-         {
-           text: '配置监测仪',
-           value: 'disposition',
-         },
-         {
-           text: '管理项目',
-           value: 'manageItem',
-           
-         },
-          {
-           text: '升级监测仪',
-           value: 'update',
-           
-         },
-          {
-           text: '用户管理',
-           value: 'manageUser',
-           
-         },
-          {
-           text: '备注',
-           value: 'notes',
-           
-         },
-        
-         { text: '操作', value: 'actions', align: 'right', sortable: false}
+        { text: '序号', sortable: true, width: 80,value: 'index' },
+        { text: '用户名', sortable: true, value: 'name' },
+        { text: '用户类型',  align: 'left',  value: 'role'},
+        { text: '用户单位', align: 'center', value: 'cid' },
+        { text: '分配监测仪',value: 'assignment',sortable: false,},
+        { text: '配置监测仪', value: 'disposition', sortable: false, },
+        { text: '管理项目', value: 'manageItem', sortable: false,  },
+        { text: '升级监测仪', value: 'update', sortable: false, },
+        { text: '用户管理', value: 'manageUser', sortable: false,},
+        { text: '备注',value: 'desc' },
+        { text: '操作', value: 'actions', align: 'right', sortable: false}
        ],
        editedIndex: -1,
 
@@ -188,18 +149,14 @@
         cid: '',
         role: 1,
         name: '',
-        assignment: '',
-        disposition:'',
-        manageItem: '',
-        update: '',
-        manageUser: '',
-        notes: ''
+        desc:''
        },
        defaultItem: {
          id: '',
          cid: '',
          role: 1,
          name: '',
+         desc:''
        },
 
        rules: {
@@ -210,6 +167,7 @@
 
     created () {
       this.initialize()
+
     },
 
    computed: {
@@ -220,6 +178,7 @@
            companies: state => state.company.companies,
            users: state => state.user.users,
            roles: state => state.user.roles,
+           powers: state => state.user.powers,
      }),
        ...mapGetters([
            'getUserRole',
@@ -233,18 +192,24 @@
          'createUser',
          'updateUser',
          'deleteUser',
+         'fetchCompanies',
      ]),
      initialize() {
-       this.fetchUsers().then((data) => {
-         console.log(data)
+        this.fetchUsers().then((data) => {
+            console.log(data);
+
        })
+        this.fetchCompanies().then(() => {
+            // console.log(data)
+        })
+       
+        // console.log(this.users);
      },
 
      editItem (item) {
        this.editedIndex = this.users.indexOf(item)
        this.editedItem = Object.assign({}, item)
        this.dialog = true
-
      },
 
      deleteItem (item) {
@@ -264,15 +229,13 @@
           item.role = parseInt(item.role)
 
           this.updateUser({id:item.id, data:item})
-          console.log(this.users);
         } else {
           let item = this.editedItem
           item.id = Util.uuidv4();
+          // console.log(item.cid)
           if (item.cid === "") item.cid =  null
           item.role = parseInt(item.role)
-
-          this.createUser(item)
-          console.log(this.users);
+          this.createUser(item) 
         }
 
         this.close()
@@ -291,7 +254,15 @@
      dialog (val) {
        val || this.close()
      },
+    //  users (){
+    //     // 根据role将user与power进行匹配
+    //     this.users.forEach(item => Object.assign(item,state.powers.find(ite => item.role == ite.role)))
+    //  }
    },
 
  }
 </script>
+<style scoped lang="sass">
+  .self-mx
+    margin: 0 200px
+</style>

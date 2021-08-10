@@ -143,7 +143,7 @@ export default {
   watch: {
     themeColor: {
       handler(val) {
-        console.log(colors)
+        // console.log(colors)
         this.$vuetify.theme.themes.light.primary = this.colors[val].base
       },
       immediate: true

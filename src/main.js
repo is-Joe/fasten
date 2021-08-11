@@ -13,7 +13,7 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import ElementUI from 'element-ui' //element-ui的全部组件
+import ElementUI from './element/index.js' //element-ui的全部组件
 import 'element-ui/lib/theme-chalk/index.css'//element-ui的css
 
 import echarts from './plugins/echartsUI'

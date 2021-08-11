@@ -232,7 +232,7 @@
         } else {
           let item = this.editedItem
           item.id = Util.uuidv4();
-          // console.log(item.cid)
+          // console.log(item)
           if (item.cid === "") item.cid =  null
           item.role = parseInt(item.role)
           this.createUser(item) 

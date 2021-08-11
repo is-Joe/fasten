@@ -115,7 +115,6 @@
                     text: 'Authentication Failed', 
                     color: 'error'
                 })
-                _this.$router.push('/cms')
             })
            
 

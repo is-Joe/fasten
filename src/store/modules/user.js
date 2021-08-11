@@ -9,7 +9,7 @@ import {
 
 const state = {
   users: [
-    {name: 'ahhah'}
+    {name: 'please open google console'}
   ],
   roles: [
     {text:'超级管理员', value:3},
@@ -72,8 +72,8 @@ const actions = {
   },
   updateUser({ commit }, { id, data }) {
     return updateUser(id, data).then((resp) => {
+      console.log(resp)
       commit('UPDATE_USER', resp)
-     
       return resp
     })
   },
@@ -87,6 +87,7 @@ const actions = {
 }
 const mutations = {
   SET_USERS(state, data) {
+    console.log(data);
     data.forEach(item => Object.assign(item,state.powers.find(ite => item.role == ite.role)))
     state.users = data
   },

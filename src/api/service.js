@@ -104,14 +104,29 @@ export function deleteNodeParamA(id) {
 }
 
 // node type A api
-export function fetchNodeParamsB(query) {
+// export function fetchNodeParamsB(query) {
+//   return request({
+//     url: `/iat302ids`,
+//     method: 'get',
+//     params: query,
+//   })
+// }
+//302参数获取
+export function fetchAngleParam(query){
   return request({
-    url: '/nodeparamsb',
+    url: `/iat302ids`,
     method: 'get',
     params: query,
   })
 }
-
+//302数据获取
+export function fetchAngleData(query){
+  return request({
+    url : '/iat302data',
+    method: 'get',
+    params: query
+  })
+}
 export function getNodeParamBById(id) {
   return request({
     url: `/nodeparamsb/${id}`,
@@ -378,3 +393,5 @@ export function fetchIam202Datas(query) {
     params: query,
   })
 }
+
+

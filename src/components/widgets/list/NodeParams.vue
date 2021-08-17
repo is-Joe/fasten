@@ -106,16 +106,16 @@
         :items="projectNodeParams"
         @dblclick:row="dblEditItem" 
         hide-default-footer>
-        <template v-slot:item.index="{ item }">
+        <template v-slot:[`item.index`]="{ item }">
             {{projectNodeParams.indexOf(item)}}
         </template>
-        <template v-slot:item.updated_at="{ item }">
+        <template v-slot:[`item.updated_at`]="{ item }">
             {{getUpTimeStamp(item.updated_at)}}
         </template>
-        <template v-slot:item.type="{ item }">
+        <template v-slot:[`item.type`]="{ item }">
             {{getNodeType(item.type)}}
         </template>
-        <template v-slot:item.state="{ item }">
+        <template v-slot:[`item.state`]="{ item }">
           <v-chip
             label
             small
@@ -125,10 +125,10 @@
             {{ getNodeParamState(item.state).text }}
           </v-chip>
         </template>
-        <template v-slot:item.wake_time="{ item }">
+        <template v-slot:[`item.wake_time`]="{ item }">
           {{ getTimeStamp(item.wake_time)}}
         </template>
-        <template v-slot:item.actions="{ item }">
+        <template v-slot:[`item.actions`]="{ item }">
           <v-icon
             small
             class="mr-2"

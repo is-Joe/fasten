@@ -27,9 +27,9 @@
                 <v-list-item-group color="primary">
                   <v-list-item v-for="(item, i) in selected" :key="i">
                     <v-list-item-content>
-                      <v-list-item-title
-                        v-text="item.node_id"
-                      ></v-list-item-title>
+                      <v-list-item-title>
+                        <!-- v-text="item.node_id" -->
+                      </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list-item-group>
@@ -52,7 +52,7 @@
           </v-card-title>
 
           <v-card-text>
-            <v-container>
+            <!-- <v-container>
               <v-row>
                 <v-col cols="12" sm="6">
                   <v-text-field
@@ -100,7 +100,7 @@
                   </v-menu>
                 </v-col>
               </v-row>
-            </v-container>
+            </v-container> -->      
           </v-card-text>
 
           <v-card-actions>
@@ -117,53 +117,56 @@
       <v-data-table
         v-model="selected"
         :headers="headers"
-        :items="projectNodeParams"
+        :items="paramAngle"
         @dblclick:row="dblEditItem"
         show-select
         hide-default-footer
       >
-        <template v-slot:item.index="{ item }">
+        <template v-slot:[`item.index`]="{ item }">
           {{projectNodeParams.indexOf(item)}}
         </template>
-        <template v-slot:item.updated_at="{ item }">
+        <!-- <template v-slot:[`item.updated_at`]="{ item }">
           {{getUpTimeStamp(item.updated_at)}}
-        </template>
-        <template v-slot:item.init="{ item }">
+        </template> -->
+        <!-- <template v-slot:[`item.init`]="{ item }">
           <v-chip
             label
             small
             :color="getNodeInitState(item.init).color"
-            text-color="white"
+            
           >
             {{ getNodeInitState(item.init).text }}
           </v-chip>
-        </template>
-        <template v-slot:item.type="{ item }">
+        </template> -->
+        <!-- <template v-slot:[`item.type`]="{ item }">
           {{getNodeType(item.type)}}
-        </template>
-        <template v-slot:item.state="{ item }">
+        </template> -->
+        <!-- <template v-slot:[`item.state`]="{ item }">
           <v-chip
             label
             small
             :color="getNodeParamState(item.state).color"
-            text-color="white"
+        
           >
             {{ getNodeParamState(item.state).text }}
           </v-chip>
-        </template>
-        <template v-slot:item.axis_x="{ item }">
+        </template> -->
+        <!-- <template v-slot:[`item.axis_x`]="{ item }">
           {{ item.axis_x / 100}}
+        </template> -->
+         <template v-slot:[`item.incline`]="{ item }">
+          {{ item.qingxie + '' + item.weiqingxie}}
         </template>
-        <template v-slot:item.axis_y="{ item }">
+        <!-- <template v-slot:[`item.axis_y`]="{ item }">
           {{ item.axis_y / 100}}
         </template>
-        <template v-slot:item.axis_z="{ item }">
+        <template v-slot:[`item.axis_z`]="{ item }">
           {{ item.axis_z / 100}}
         </template>
-        <template v-slot:item.wake_time="{ item }">
+        <template v-slot:[`item.wake_time`]="{ item }">
           {{ getTimeStamp(item.wake_time)}}
-        </template>
-        <template v-slot:item.actions="{ item }">
+        </template> -->
+        <template v-slot:[`item.actions`]="{ item }">
           <v-icon small class="mr-2" @click="editItem(item)">
             mdi-pencil
           </v-icon>
@@ -196,16 +199,15 @@
 
         selected: [],
         headers: [
-          { text: '序号', sortable: true, value: 'index', width:60 },
-          { text: '终端ID', align: 'center', value: 'node_id' },
-          { text: '类型', align: 'center', value: 'type' },
-          { text: '状态', align: 'center', value: 'state',sortable: false },
-          { text: '初始化', align: 'center', value: 'init',sortable: false },
-          { text: '倾角X', align: 'center', value: 'axis_x',sortable: false },
-          { text: '倾角Y', align: 'center', value: 'axis_y',sortable: false },
-          { text: '倾角Z', align: 'center', value: 'axis_z',sortable: false },
+          { text: '序号', sortable: true, value: 'index', width:75 },
+          { text: '位置描述', align: 'center', value: 'addr',sortable: false },
+          { text: '初始值', align: 'center', value: 'type',sortable: false },
+          { text: '阈值',align: 'center',value: 'incline',sortable: false },
           { text: '唤醒时间', align: 'center', value: 'wake_time',sortable: false },
-          { text: '时间戳', align: 'left', value: 'updated_at' },
+          { text: 'ip地址', align: 'center', value: 'server_addr_1',sortable: false },
+          { text: '初始化状态', align: 'center', value: 'state',sortable: false },
+          { text: '同步状态', align: 'center', value: 'state',sortable: false },
+          { text: '备注', align: 'center', value: 'desc',sortable: false },
           { text: '动作', value: 'actions', align: 'right', sortable: false },
         ],
 
@@ -242,6 +244,7 @@
         nodeTypes: (state) => state.node.nodeTypes,
         nodeParamsB: (state) => state.nodeparam.nodeparamsb,
         nodeParamState: (state) => state.nodeparam.nodeParamState,
+        paramAngle: (state) => state.nodeparam.paramAngle
       }),
 
       ...mapGetters(['getProjectName', 'getNodeType', 'getNodeParamState', 'getNodeInitState']),
@@ -267,13 +270,13 @@
         'createNodeParamB',
         'updateNodeParamB',
         'deleteNodeParamB',
+        'fetchAngleParam'
       ]),
 
       initialize() {
-        this.fetchNodeParamsB().then((data) => {
+        this.fetchAngleParam().then((data) => {
           console.log(data)
         })
-
         console.log(this.projectNodeParamsB)
       },
 
@@ -289,7 +292,6 @@
             arr.push(this.nodeParamsB[j])
           }
         }
-
         return arr
       },
 

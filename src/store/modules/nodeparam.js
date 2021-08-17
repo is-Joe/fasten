@@ -4,14 +4,16 @@ import {
   deleteNodeParamA,
   createNodeParamA,
   updateNodeParamA,
+  fetchAngleParam,
 
-  fetchNodeParamsB,
+  // fetchNodeParamsB,
   deleteNodeParamB,
   createNodeParamB,
   updateNodeParamB,
 } from '@/api/service'
 
 const state = {
+  paramAngle: {},
   nodeparamsa: [],
   nodeparamsb: [],
   nodeParamState: [
@@ -39,6 +41,12 @@ const getters = {
 }
 
 const actions = {
+  fetchAngleParam({commit},query){
+      return fetchAngleParam(query).then((resp) =>{
+        commit('SET_PARAM_ANGLE',resp)
+        return resp
+      })
+  },
   fetchNodeParamsA({ commit }, query) {
     return fetchNodeParamsA(query).then((resp) => {
       commit('SET_NODEPARAMS_A', resp)
@@ -67,12 +75,12 @@ const actions = {
     })
   },
 
-  fetchNodeParamsB({ commit }, query) {
-    return fetchNodeParamsB(query).then((resp) => {
-      commit('SET_NODEPARAMS_B', resp)
-      return resp
-    })
-  },
+  // fetchNodeParamsB({ commit }, query) {
+  //   return fetchNodeParamsB(query).then((resp) => {
+  //     commit('SET_NODEPARAMS_B', resp)
+  //     return resp
+  //   })
+  // },
 
   createNodeParamB({ commit }, data) {
     return createNodeParamB(data).then((resp) => {
@@ -97,6 +105,10 @@ const actions = {
 }
 
 const mutations = {
+  SET_PARAM_ANGLE(state,data){
+    state.paramAngle = data
+  },
+
   SET_NODEPARAMS_A(state, data) {
     state.nodeparamsa = data
   },

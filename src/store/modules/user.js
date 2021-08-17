@@ -72,7 +72,6 @@ const actions = {
   },
   updateUser({ commit }, { id, data }) {
     return updateUser(id, data).then((resp) => {
-      console.log(resp)
       commit('UPDATE_USER', resp)
       return resp
     })

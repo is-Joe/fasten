@@ -137,8 +137,9 @@
       <v-divider />
     </v-card-text>
   </v-card>
-</template>
+<!-- test contribute -->
 
+</template>
 <script>
  import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
  import Util from '@/util'

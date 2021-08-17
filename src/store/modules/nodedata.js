@@ -1,7 +1,8 @@
 import Vue from 'vue'
-import { fetchNodeDatas, fetchLastDatas } from '@/api/service'
+import { fetchNodeDatas, fetchLastDatas,fetchAngleData } from '@/api/service'
 
 const state = {
+  angleData:[],
   nodeDatas: [],
   nodeLastDatas: [],
   alarmPress: [
@@ -33,6 +34,15 @@ const getters = {
 }
 
 const actions = {
+  fetchAngleData({commit},query){
+    return fetchAngleData(query).then((resp) => {
+      commit('SET_DATA_ANGLE', resp)
+      return resp
+    })
+  },
+
+
+
   fetchNodeDatas({ commit }, query) {
     return fetchNodeDatas(query).then((resp) => {
       var res = resp.map((item) => {
@@ -53,6 +63,9 @@ const actions = {
   },
 }
 const mutations = {
+  SET_DATA_ANGLE(state,data){
+    state.angleData = data
+  },
   SET_NODEDATAS(state, data) {
     state.nodeDatas = data
   },

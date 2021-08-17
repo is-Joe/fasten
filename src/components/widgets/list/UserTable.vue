@@ -49,7 +49,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <v-select
                     label="单位名称"
-                    v-model="editedItem.cid"
+                    v-model="editedItem.company_id"
                     item-text="name"
                     item-value="id"
                     :items="companies"
@@ -93,8 +93,8 @@
           <template v-slot:[`item.role`]="{ item }">
               {{getUserRole(item.role)}}
           </template>
-          <template v-slot:[`item.cid`]="{ item }">
-              {{getCompanyName(item.cid)}}
+          <template v-slot:[`item.company_id`]="{ item }">
+              {{getCompanyName(item.company_id)}}
               <!-- {{item.cid}} -->
           </template>
           <template v-slot:[`item.actions`]="{ item }">
@@ -133,7 +133,7 @@
         { text: '序号', sortable: true, width: 80,value: 'index' },
         { text: '用户名', sortable: true, value: 'name' },
         { text: '用户类型',  align: 'left',  value: 'role'},
-        { text: '用户单位', align: 'center', value: 'cid' },
+        { text: '用户单位', align: 'center', value: 'company_id' },
         { text: '分配监测仪',value: 'assignment',sortable: false,},
         { text: '配置监测仪', value: 'disposition', sortable: false, },
         { text: '管理项目', value: 'manageItem', sortable: false,  },
@@ -146,14 +146,14 @@
 
        editedItem: {
         id: '',
-        cid: '',
+        company_id: '',
         role: 1,
         name: '',
         desc:''
        },
        defaultItem: {
          id: '',
-         cid: '',
+         company_id: '',
          role: 1,
          name: '',
          desc:''
@@ -227,14 +227,15 @@
         if (this.editedIndex > -1) {
           let item = this.editedItem
           item.role = parseInt(item.role)
-
+          console.log('save',item);
           this.updateUser({id:item.id, data:item})
         } else {
           let item = this.editedItem
           item.id = Util.uuidv4();
           // console.log(item)
-          if (item.cid === "") item.cid =  null
+          if (item.cid === "") item.cid =  'aa'
           item.role = parseInt(item.role)
+          console.log(item)
           this.createUser(item) 
         }
 

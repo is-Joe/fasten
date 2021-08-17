@@ -131,7 +131,7 @@
           { text: '终端ID', align: 'center', sortable: true, value: 'node_id' },
           { text: '终端类型', align: 'center', value: 'type' },
           { text: '描述信息', align: 'center', value: 'info' },
-          /* { text: '状态', align: 'center', value: 'status' },*/
+          { text: '状态', align: 'center', value: 'status' },
           { text: '项目名称', align: 'center', value: 'project' },
           { text: '操作', value: 'actions', align: 'right', sortable: false }
         ],
@@ -194,6 +194,7 @@
         nodeTypes: (state) => state.node.nodeTypes,
         nodeDatas: (state) => state.nodedata.nodeDatas,
         alarm: (state) => state.nodedata.alarmPress,
+        // paramAngle: (state) => state.nodeparam.paramAngle
       }),
 
       ...mapGetters(['getProjectName', 'getNodeType']),
@@ -261,11 +262,24 @@
     },
 
     methods: {
-      ...mapActions(['fetchNodes', 'createNode', 'updateNode', 'deleteNode']),
+      ...mapActions([ 
+        'fetchNodes',
+        'createNode', 
+        'updateNode', 
+        'deleteNode',
+        'fetchAngleParam',
+        'fetchAngleData'
+      ]),
 
       initialize() {
         this.fetchNodes().then((data) => {
           console.log(data)
+        })
+        this.fetchAngleParam().then((data) => {
+          console.log('302参数',data)
+        })
+        this.fetchAngleData().then((data)=>{
+          console.log('302数据',data)
         })
       },
 

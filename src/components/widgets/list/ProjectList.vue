@@ -6,8 +6,6 @@
       <v-toolbar-title>
         项目列表
       </v-toolbar-title>
-      
-      
       <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
@@ -194,7 +192,7 @@
           projects: state => state.project.projects,
           projectType: state => state.project.projectTypes,
           companies: state => state.company.companies,
-          projectProgress: state => state.project.projectProgress
+          projectProgress: state => state.project.projectProgress,
     }),
       ...mapGetters([
           'getProjectType',
@@ -204,29 +202,31 @@
   },
 
   methods: {
-
     projectDetail(mouseEvent, entry) {
       this.$router.push({
         path: '/widgets/chart/' + entry.item.id
+       
       })
+      
     },
 
-      ...mapActions([
-          'fetchProjects',
-          'createProject',
-          'updateProject',
-          'deleteProject',
-          'fetchCompanies',
-      ]),
+    ...mapActions([
+        'fetchProjects',
+        'createProject',
+        'updateProject',
+        'deleteProject',
+        'fetchCompanies'
+    ]),
     // 初始化
     initialize() {
     //之所以两个请求相互嵌套是因为里面请求的数据依赖外面的数据
         this.fetchProjects().then((data) => {
+          console.log(data)
+          this.fetchCompanies().then((data) => {
             console.log(data)
-            this.fetchCompanies().then((data) => {
-              console.log(data)
-            })
+          })
         })
+       
     },
 
     editItem (item) {
